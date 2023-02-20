@@ -1,25 +1,60 @@
-export default function Home() {
-  return (
-    <>
-      <h2 className="py-4 text-2xl">Food</h2>
-      <div className="w-64 py-4 ">
-        <div className="bg-slate-300 hover:bg-slate-200 hover:transition-all p-5 rounded-xl transition-duration: 350ms;">
-          <img src="/products/img110.png" />
-        </div>
+import { useEffect, useState } from "react";
+import Product from "@/components/Product";
+import { initMongoose } from "@/lib/mongoose";
+import { findAllProducts } from "./api/products";
+import Layout from "@/components/Layout";
+import { IProduct } from "@/types";
 
-        <h3 className="text-bold text-lg mt-2">kalafior</h3>
-        <p className="text-sm text-lg mt-2 leading-4">
-          Lorem ipsum dolor, sit amet consectetur adipisicing elit. Veniam illo
-          labore ab recusandae assumenda illum aut sapiente enim, dolorem
-          tempora.
-        </p>
-        <div className="flex mt-1">
-          <p className="text-2xl font-bold grow">$100</p>
-          <button className="bg-lime-200 hover:bg-lime-100 py-1 px-3 text-green-900 rounded-xl">
-            +
-          </button>
+interface HomeProps {
+  shopItems: IProduct[];
+}
+
+//</IProduct>
+export default function Home({ shopItems }: HomeProps) {
+  const [search, setSearch] = useState<string>("");
+
+  const categories = Array.from(new Set(shopItems.map((p) => p.category)));
+  console.log(categories);
+
+  if (search) {
+    shopItems = shopItems.filter((p) => p.name.toLowerCase().includes(search));
+  }
+
+  return (
+    <Layout>
+      <input
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        type="text"
+        placeholder="search for products..."
+        className="bg-gray-100 w-full py-2 px-4 rounded"
+      ></input>
+      {categories.map((categoryName) => (
+        <div className=" p-3" key={categoryName}>
+          {shopItems.find((p) => p.category === categoryName) && (
+            <>
+              <h2 className="py-4 text-2xl p-3 capitalize">{categoryName}</h2>
+              <div className="flex flex-wrap -mx-5 overflow-x-scroll  justify-center">
+                {shopItems
+                  .filter((p) => p.category === categoryName)
+                  .map((product) => (
+                    <div key={product._id} className="p-5">
+                      <Product {...product} />
+                    </div>
+                  ))}
+              </div>
+            </>
+          )}
         </div>
-      </div>
-    </>
+      ))}
+    </Layout>
   );
+}
+
+export async function getServerSideProps() {
+  await initMongoose(); //conecting to the db
+  const shopItems = await findAllProducts();
+  return {
+    props: { shopItems: JSON.parse(JSON.stringify(shopItems)) },
+  };
 }
