@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext } from "react";
+import useLocalStorageState from "use-local-storage-state";
 
 interface IProductContext {
   selectedProducts: string[];
@@ -17,7 +18,9 @@ export function ProductsContextProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
+  const [selectedProducts, setSelectedProducts] = useLocalStorageState<
+    string[]
+  >("cart", { defaultValue: [] });
 
   function addProduct(id: string) {
     setSelectedProducts((prev) => [...prev, id]);

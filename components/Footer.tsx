@@ -11,12 +11,24 @@ export default function Footer() {
   const { selectedProducts } = useBasket();
 
   return (
-    <footer className="sticky bottom-0 bg-white p-5 w-full flex">
-      <Link href={"/"}>
+    <footer className="sticky bottom-0 bg-white p-5 w-full flex border-t border-gray-200 text-gray-4 space-x-12 justify-center">
+      <Link
+        href={"/"}
+        className={
+          (path === "/" ? "text-emerald-600" : "") +
+          "flex-col items-center justify-center items-center"
+        }
+      >
         <AiOutlineHome />
         <span>Home</span>
       </Link>
-      <Link href={"/checkout"} className="pl-6">
+      <Link
+        href={"/checkout"}
+        className={
+          (path === "/checkout" ? "text-emerald-600" : "") +
+          "flex-col items-center justify-center items-center"
+        }
+      >
         <AiOutlineShoppingCart /> <span>Cart {selectedProducts.length}</span>
       </Link>
     </footer>
