@@ -25,11 +25,13 @@ export default function Footer() {
       <Link
         href={"/checkout"}
         className={
-          (path === "/checkout" ? "text-emerald-600" : "") +
+          (path === "/" ? "text-emerald-600" : "") +
           "flex-col items-center justify-center items-center"
         }
       >
-        <AiOutlineShoppingCart /> <span>Cart {selectedProducts.length}</span>
+        {" "}
+        <AiOutlineShoppingCart />
+        {selectedProducts.reduce((acc, item) => acc + item.quantity, 0)}
       </Link>
     </footer>
   );

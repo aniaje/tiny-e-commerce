@@ -1,4 +1,4 @@
-import { ProductsContext, useBasket } from "@/ProductsContext";
+import { useBasket } from "@/ProductsContext";
 import { IProduct } from "@/types";
 
 export default function Product({
@@ -12,7 +12,7 @@ export default function Product({
 
   return (
     <div
-      className="max-w-sm rounded overflow-hidden shadow-md
+      className="max-w-sm rounded overflow-hidden shadow-md justify-center
     "
     >
       <div className="">
@@ -30,6 +30,7 @@ export default function Product({
         <span className="px-3 py-1 text-large font-semibold text-gray-700 mr-2 mb-2 grow">
           {price}
         </span>
+
         <button
           onClick={() => addProduct(_id)}
           className=" bg-lime-200 hover:bg-lime-300 rounded-full px-3 py-1 text-2xl  text-gray-700 mr-2 mb-2 "

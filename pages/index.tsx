@@ -14,7 +14,6 @@ export default function Home({ shopItems }: HomeProps) {
   const [search, setSearch] = useState<string>("");
 
   const categories = Array.from(new Set(shopItems.map((p) => p.category)));
-  console.log(categories);
 
   if (search) {
     shopItems = shopItems.filter((p) => p.name.toLowerCase().includes(search));

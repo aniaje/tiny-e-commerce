@@ -10,5 +10,13 @@ export default async function handle(
   res: NextApiResponse
 ) {
   await initMongoose();
-  res.json(await findAllProducts());
+  const { ids } = req.query; //const ids = req.query.ids
+
+  if (ids) {
+    const idsArray = ids.split(",");
+    console.log(idsArray);
+    res.json(await Product.find({ _id: { $in: idsArray } }).exec());
+  } else {
+    res.json(await findAllProducts());
+  }
 }

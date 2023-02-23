@@ -4,7 +4,7 @@ export default function Document() {
   return (
     <Html lang="en">
       <Head />
-      <body className="min-h-screen p-5 flex ">
+      <body className="min-h-screen p-5 flex justify-center">
         <Main />
         <NextScript />
       </body>

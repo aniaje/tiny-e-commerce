@@ -1,8 +1,11 @@
-import React, { createContext, useContext } from "react";
-import useLocalStorageState from "use-local-storage-state";
+import React, { createContext, useContext, useState } from "react";
+interface BasketItem {
+  id: string;
+  quantity: number;
+}
 
 interface IProductContext {
-  selectedProducts: string[];
+  selectedProducts: BasketItem[];
   addProduct: (id: string) => void;
   removeProduct: (id: string) => void;
 }
@@ -18,27 +21,39 @@ export function ProductsContextProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const [selectedProducts, setSelectedProducts] = useLocalStorageState<
-    string[]
-  >("cart", { defaultValue: [] });
-
-  function addProduct(id: string) {
-    setSelectedProducts((prev) => [...prev, id]);
-  }
+  const [selectedProducts, setSelectedProducts] = useState<BasketItem[]>([]);
 
   console.log(selectedProducts);
 
-  function removeProduct(id: string) {
-    setSelectedProducts((prev) =>
-      prev.filter((item) => {
-        return item !== id;
-      })
-    );
+  function modifyProductsQuantity(id: string, type: "ADD" | "REMOVE") {
+    if (selectedProducts.some((item) => item.id === id)) {
+      const pos = selectedProducts.findIndex((item) => {
+        return item.id === id;
+      });
+      const selectedItems = [...selectedProducts];
+      selectedItems[pos].quantity =
+        type === "ADD"
+          ? selectedItems[pos].quantity + 1
+          : selectedItems[pos].quantity - 1;
+      setSelectedProducts(selectedItems);
+    } else {
+      if (type === "ADD") {
+        setSelectedProducts([...selectedProducts, { id, quantity: 1 }]);
+      }
+    }
   }
 
   return (
     <ProductsContext.Provider
-      value={{ selectedProducts, addProduct, removeProduct }}
+      value={{
+        selectedProducts,
+        addProduct: (id: string) => {
+          modifyProductsQuantity(id, "ADD");
+        },
+        removeProduct: (id: string) => {
+          modifyProductsQuantity(id, "REMOVE");
+        },
+      }}
     >
       {children}
     </ProductsContext.Provider>
