@@ -29,7 +29,7 @@ export default function Home({ shopItems }: HomeProps) {
         className="bg-gray-100 w-full py-2 px-4 rounded"
       ></input>
       {categories.map((categoryName) => (
-        <div className=" p-3" key={categoryName}>
+        <div className="grow p-3" key={categoryName}>
           {shopItems.find((p) => p.category === categoryName) && (
             <>
               <h2 className="py-4 text-2xl p-3 capitalize">{categoryName}</h2>

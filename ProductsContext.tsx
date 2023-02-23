@@ -23,6 +23,10 @@ export function ProductsContextProvider({
 }) {
   const [selectedProducts, setSelectedProducts] = useState<BasketItem[]>([]);
 
+  const saveToCart = () => {
+    localStorage.setItem("cart", JSON.stringify(selectedProducts));
+  };
+
   console.log(selectedProducts);
 
   function modifyProductsQuantity(id: string, type: "ADD" | "REMOVE") {
@@ -36,6 +40,7 @@ export function ProductsContextProvider({
           ? selectedItems[pos].quantity + 1
           : selectedItems[pos].quantity - 1;
       setSelectedProducts(selectedItems);
+      saveToCart();
     } else {
       if (type === "ADD") {
         setSelectedProducts([...selectedProducts, { id, quantity: 1 }]);

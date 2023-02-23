@@ -1,7 +1,7 @@
-import { ProductsContext, useBasket } from "@/ProductsContext";
+import { useBasket } from "@/ProductsContext";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useContext } from "react";
+
 import { AiOutlineShoppingCart, AiOutlineHome } from "react-icons/ai";
 
 export default function Footer() {
@@ -11,7 +11,7 @@ export default function Footer() {
   const { selectedProducts } = useBasket();
 
   return (
-    <footer className="sticky bottom-0 bg-white p-5 w-full flex border-t border-gray-200 text-gray-4 space-x-12 justify-center">
+    <footer className="sticky bottom-0 mt-auto bg-white p-5 w-full flex border-t border-gray-200 text-gray-4 space-x-12 justify-center">
       <Link
         href={"/"}
         className={
