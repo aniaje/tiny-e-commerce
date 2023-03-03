@@ -19,13 +19,14 @@ export default function Footer() {
           "flex-col items-center justify-center items-center"
         }
       >
+        <pre>{path}</pre>
         <AiOutlineHome />
         <span>Home</span>
       </Link>
       <Link
         href={"/checkout"}
         className={
-          (path === "/" ? "text-emerald-600" : "") +
+          (path === "/checkout" ? "text-emerald-600" : "") +
           "flex-col items-center justify-center items-center"
         }
       >
@@ -33,6 +34,7 @@ export default function Footer() {
         <AiOutlineShoppingCart />
         {selectedProducts.reduce((acc, item) => acc + item.quantity, 0)}
       </Link>
+      <Link href={"/about"}> About</Link>
     </footer>
   );
 }

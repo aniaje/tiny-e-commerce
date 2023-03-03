@@ -39,6 +39,9 @@ export function ProductsContextProvider({
         type === "ADD"
           ? selectedItems[pos].quantity + 1
           : selectedItems[pos].quantity - 1;
+      if (selectedItems[pos].quantity <= 0) {
+        selectedItems.splice(pos, 1);
+      }
       setSelectedProducts(selectedItems);
       saveToCart();
     } else {

@@ -24,6 +24,7 @@ export default function CheckoutPag() {
     <Layout>
       <h2 className="text-center pb-24 text-2xl">Checkout</h2>
       {!productsInfos.length && <div>your shopping cart is empty</div>}
+      {console.log(productsInfos)}
       {productsInfos.map((productInfo: IProduct) => (
         <div className="flex mb-5">
           <div className="bg-gray-100 p-3 w-64 rounded-xl">

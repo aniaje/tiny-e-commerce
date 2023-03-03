@@ -12,8 +12,9 @@ export default async function handle(
   await initMongoose();
   const { ids } = req.query; //const ids = req.query.ids
 
-  if (ids) {
-    const idsArray = ids.split(",");
+  if (ids?.length) {
+    console.log(ids);
+    const idsArray = ids?.split(",");
     console.log(idsArray);
     res.json(await Product.find({ _id: { $in: idsArray } }).exec());
   } else {
