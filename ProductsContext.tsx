@@ -1,80 +1,90 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, ReactNode, useContext, useState } from "react";
 
 interface BasketItem {
   id: string;
   quantity: number;
 }
 
-interface IProductContext {
-  selectedProducts: BasketItem[];
-  addProduct: (id: string) => void;
-  removeProduct: (id: string) => void;
+interface BasketProviderProps {
+  children: ReactNode;
 }
 
-export const ProductsContext = createContext<IProductContext>({
-  selectedProducts: [],
-  addProduct: (id: string) => {},
-  removeProduct: (id: string) => {},
-});
+interface BasketContext {
+  getItemQuantity: (id: string) => number;
+  increaseBasketQuantity: (id: string) => void;
+  decreaseBasketQuantity: (id: string) => void;
+  removeFromBasket: (id: string) => void;
+  basketQuantity: number;
+  basketItems: BasketItem[];
+}
 
-export function ProductsContextProvider({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  const [selectedProducts, setSelectedProducts] = useState<BasketItem[]>([]);
+const BasketContext = createContext({} as BasketContext);
 
-  console.log(selectedProducts);
+export const useBasket = () => useContext(BasketContext);
 
-  const saveToCart = () => {
-    localStorage.setItem("cart", JSON.stringify(selectedProducts));
-  };
+export function BasketContextProvider({ children }: BasketProviderProps) {
+  const [basketItems, setBasketItems] = useState<BasketItem[]>([]);
 
-  console.log("asd");
+  const basketQuantity = basketItems.reduce(
+    (quantity, item) => item.quantity + quantity,
+    0
+  );
 
-  function modifyProductsQuantity(id: string, type: "ADD" | "REMOVE") {
-    if (selectedProducts.some((item) => item.id === id)) {
-      const pos = selectedProducts.findIndex((item) => {
-        return item.id === id;
-      });
-      console.log(selectedProducts);
-      const selectedItems = [...selectedProducts];
-      console.log(selectedItems);
-      selectedItems[pos].quantity =
-        type === "ADD"
-          ? selectedItems[pos].quantity + 1
-          : selectedItems[pos].quantity - 1;
+  function getItemQuantity(id: string) {
+    return basketItems.find((item) => item.id === id)?.quantity || 0;
+  }
 
-      if (selectedItems[pos].quantity == 0) {
-        selectedItems.splice(pos, 1);
-        console.log(selectedItems);
+  function increaseBasketQuantity(id: string) {
+    setBasketItems((currItems) => {
+      if (currItems.find((item) => item.id === id) == null) {
+        return [...currItems, { id, quantity: 1 }];
+      } else {
+        return currItems.map((item) => {
+          if (item.id === id) {
+            return { ...item, quantity: item.quantity + 1 };
+          } else {
+            return item;
+          }
+        });
       }
-      console.log(selectedItems[pos]);
+    });
+    localStorage.setItem("cart", JSON.stringify(basketItems)); // przy pierwszym kliknieciu dodaj do koszyka, nie dodaje mi sie quantity.
+  }
 
-      setSelectedProducts(selectedItems);
-      saveToCart();
-    } else {
-      if (type === "ADD") {
-        setSelectedProducts([...selectedProducts, { id, quantity: 1 }]);
+  function decreaseBasketQuantity(id: string) {
+    setBasketItems((currItems) => {
+      if (currItems.find((item) => item.id === id)?.quantity === 1) {
+        return currItems.filter((item) => item.id !== id);
+      } else {
+        return currItems.map((item) => {
+          if (item.id === id) {
+            return { ...item, quantity: item.quantity - 1 };
+          } else {
+            return item;
+          }
+        });
       }
-    }
+    });
+  }
+
+  function removeFromBasket(id: string) {
+    setBasketItems((currItems) => {
+      return currItems.filter((item) => item.id !== id);
+    });
   }
 
   return (
-    <ProductsContext.Provider
+    <BasketContext.Provider
       value={{
-        selectedProducts,
-        addProduct: (id: string) => {
-          modifyProductsQuantity(id, "ADD");
-        },
-        removeProduct: (id: string) => {
-          modifyProductsQuantity(id, "REMOVE");
-        },
+        getItemQuantity,
+        increaseBasketQuantity,
+        decreaseBasketQuantity,
+        removeFromBasket,
+        basketItems,
+        basketQuantity,
       }}
     >
       {children}
-    </ProductsContext.Provider>
+    </BasketContext.Provider>
   );
 }
-
-export const useBasket = () => useContext(ProductsContext);

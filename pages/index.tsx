@@ -1,9 +1,11 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Product from "@/components/Product";
 import { initMongoose } from "@/lib/mongoose";
 import { findAllProducts } from "./api/products";
 import Layout from "@/components/Layout";
 import { IProduct } from "@/types";
+import { useBasket } from "@/ProductsContext";
+import axios from "axios";
 
 interface HomeProps {
   shopItems: IProduct[];
@@ -14,7 +16,7 @@ export default function Home({ shopItems }: HomeProps) {
   const [search, setSearch] = useState<string>("");
   const [displayedCat, setDisplayedCat] = useState<string>("all");
   const categories = Array.from(new Set(shopItems.map((p) => p.category)));
-
+  const { basketItems } = useBasket();
   const products = useMemo(() => {
     return shopItems.filter((p) =>
       displayedCat === "all"

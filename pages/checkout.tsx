@@ -11,23 +11,55 @@ type orderForm = {
   city: String;
   email: String;
 };
+
+export interface CartProductDB {
+  productId: string;
+  quantinty: number;
+}
+
+export interface CartProductNonDB {
+  product: IProduct;
+  quantity: number;
+}
+
 export default function CheckoutPag() {
-  const { selectedProducts, addProduct, removeProduct } = useBasket();
+  const { basketItems, increaseBasketQuantity, decreaseBasketQuantity } =
+    useBasket();
+
+  const [basket, setBasket] = useState([]);
+
   const [productsInfos, setProductsInfos] = useState([]);
 
   useEffect(() => {
-    const uniqueIds = selectedProducts.map((item) => item.id);
-    if (selectedProducts.length === 0) {
-      setProductsInfos([]);
-    }
-    console.log(selectedProducts);
+    const uniqueIds = basketItems.map((item) => item.id);
     axios
       .get("/api/products?ids=" + uniqueIds.join(","))
       .then(function (response) {
-        console.log(response.data);
-        setProductsInfos(response.data);
+        const data = response.data;
+        const result = data.map((item) => item._id);
+        console.log(result);
+        console.log(basketItems);
+        console.log(data);
+        setBasket(result);
       });
-  }, [selectedProducts]);
+  }, [basketItems]);
+  console.log(basket);
+  // const basket2 = [
+  //   {
+  //     product1: {
+  //       productID: "63f2188149a923df6c6e1d2e",
+  //       quantity: 3,
+  //     },
+  //     product2: {
+  //       productID: "63f235d349a923df6c6e1d2f",
+  //       quantity: 4,
+  //     },
+  //     product3: {
+  //       productID: "63f235f349a923df6c6e1d30",
+  //       quantity: 4,
+  //     },
+  //   },
+  // ];
 
   const {
     register,
@@ -37,75 +69,48 @@ export default function CheckoutPag() {
   } = useForm<orderForm>();
   const onSubmit: SubmitHandler<orderForm> = (data) => console.log(data);
 
-  let delivery = 5;
-
-  let subtotal = useMemo(() => {
-    return productsInfos
-      .filter((item) =>
-        selectedProducts.find((product) => item._id === product.id)
-      )
-      .reduce((acc, item) => {
-        const quantity =
-          selectedProducts.find((product) => product.id === item._id)
-            ?.quantity || 0;
-
-        return acc + item.price * quantity;
-      }, 0);
-  }, [selectedProducts, productsInfos]);
-
-  // for (let id of selectedProducts) {
-  //   const price = productsInfos.find((p) => p._id === id)?.price;
-  //   subtotal = subtotal + price;
-  // }
-
-  const total = subtotal + delivery;
   return (
     <Layout>
       <h2 className="text-center pb-24 text-2xl">Checkout</h2>
-      {!productsInfos.length && <div>your shopping cart is empty</div>}
+      {!basketItems.length && <div>your shopping cart is empty</div>}
 
-      {productsInfos.length
-        ? productsInfos.map((productInfo: IProduct) => (
-            <div className="flex mb-5">
-              <div className="bg-gray-100 p-3 w-64 rounded-xl">
-                <img src={productInfo.image} alt="" />
-              </div>
-              <div
-                className="pl-4
-            "
-              >
-                <h3 className="text-lg font-semi-bold">{productInfo.name} </h3>
-                <p className="text-sm leading-4 text-gray-600">
-                  {productInfo.description}
-                </p>
-                <div className="flex">
-                  <div className="grow">${productInfo.price}</div>
-                  <div className="">
-                    <button
-                      onClick={() => removeProduct(productInfo._id)}
-                      className="border border-emerald-400 px-2 rounded-lg text-emerald "
-                    >
-                      -
-                    </button>
-                    <span className="px-4">
-                      {selectedProducts.find(
-                        (item) => item.id === productInfo._id
-                      )?.quantity || 0}
-                    </span>
-                    <button
-                      onClick={() => addProduct(productInfo._id)}
-                      className="bg-emerald-400 border  px-2 mr-3 rounded-lg text-emerald "
-                    >
-                      +
-                    </button>
-                    {/* //item/s depending on q */}
-                  </div>
-                </div>
+      {basket.map((product: IProduct) => (
+        <div className="flex mb-5">
+          <div className="bg-gray-100 p-3 w-64 rounded-xl">
+            <img src={product.image} alt="" />
+          </div>
+          <div
+            className="pl-4
+     "
+          >
+            <h3 className="text-lg font-semi-bold">{product.name} </h3>
+            <p className="text-sm leading-4 text-gray-600">
+              {product.description}
+            </p>
+            <div className="flex">
+              <div className="grow">${product.price}</div>
+              <div className="">
+                <button
+                  onClick={() => decreaseBasketQuantity(product._id)}
+                  className="border border-emerald-400 px-2 rounded-lg text-emerald "
+                >
+                  -
+                </button>
+                <span className="px-4"></span>
+                <button
+                  onClick={() => increaseBasketQuantity(product._id)}
+                  className="bg-emerald-400 border  px-2 mr-3 rounded-lg text-emerald "
+                >
+                  +
+                </button>
+                {/* //item/s depending on q */}
               </div>
             </div>
-          ))
-        : ""}
-      {productsInfos.length ? (
+          </div>
+        </div>
+      ))}
+
+      {!productsInfos.length && (
         <form className="" onSubmit={handleSubmit(onSubmit)}>
           <h3 className="mt-8 mb-3 text-center">order here!</h3>
           <input
@@ -138,7 +143,7 @@ export default function CheckoutPag() {
             placeholder="E-mail address"
           />
           <input className="bg-emerald-400 py-2 px-4 rounded" type="submit" />
-          <div className="mt-4">
+          {/* <div className="mt-4">
             {" "}
             <div className="flex ">
               <h3 className="grow text-gray-400 font-bold ">subtotal:</h3>
@@ -152,10 +157,8 @@ export default function CheckoutPag() {
               <h3 className="grow text-gray-400 font-bold ">total:</h3>
               <h3></h3>
             </div>
-          </div>
+          </div> */}
         </form>
-      ) : (
-        ""
       )}
     </Layout>
   );
