@@ -28,8 +28,6 @@ export default function CheckoutPag() {
 
   const [basket, setBasket] = useState([]);
 
-  const [productsInfos, setProductsInfos] = useState([]);
-
   useEffect(() => {
     const uniqueIds = basketItems.map((item) => item.id);
     axios
@@ -110,7 +108,7 @@ export default function CheckoutPag() {
         </div>
       ))}
 
-      {!productsInfos.length && (
+      {!basketItems.length && (
         <form className="" onSubmit={handleSubmit(onSubmit)}>
           <h3 className="mt-8 mb-3 text-center">order here!</h3>
           <input
