@@ -34,31 +34,20 @@ export default function CheckoutPag() {
       .get("/api/products?ids=" + uniqueIds.join(","))
       .then(function (response) {
         const data = response.data;
-        const result = data.map((item) => item._id);
-        console.log(result);
-        console.log(basketItems);
-        console.log(data);
-        setBasket(result);
+
+        setBasket(data);
       });
   }, [basketItems]);
   console.log(basket);
-  // const basket2 = [
-  //   {
-  //     product1: {
-  //       productID: "63f2188149a923df6c6e1d2e",
-  //       quantity: 3,
-  //     },
-  //     product2: {
-  //       productID: "63f235d349a923df6c6e1d2f",
-  //       quantity: 4,
-  //     },
-  //     product3: {
-  //       productID: "63f235f349a923df6c6e1d30",
-  //       quantity: 4,
-  //     },
-  //   },
-  // ];
 
+  const basketProducts = basketItems
+    .map((item) => {
+      const product = basket.find((obj) => obj._id === item.id);
+      return product ? { ...product, quantity: item.quantity } : null;
+    })
+    .filter((item) => item !== null);
+
+  console.log(basketProducts);
   const {
     register,
     handleSubmit,
@@ -72,7 +61,7 @@ export default function CheckoutPag() {
       <h2 className="text-center pb-24 text-2xl">Checkout</h2>
       {!basketItems.length && <div>your shopping cart is empty</div>}
 
-      {basket.map((product: IProduct) => (
+      {basketProducts.map((product: IProduct) => (
         <div className="flex mb-5">
           <div className="bg-gray-100 p-3 w-64 rounded-xl">
             <img src={product.image} alt="" />
