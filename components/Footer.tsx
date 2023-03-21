@@ -12,7 +12,7 @@ export default function Footer() {
 
   return (
     <footer className="sticky bottom-0 mt-auto bg-white p-5 w-full flex border-t border-gray-200 text-gray-4 space-x-12 justify-center">
-      <a
+      <Link
         href={"/"}
         className={
           (path === "/" ? "text-emerald-600" : "") +
@@ -22,7 +22,7 @@ export default function Footer() {
         <pre>{path}</pre>
         <AiOutlineHome />
         Home
-      </a>
+      </Link>
       <Link
         href={"/checkout"}
         className={

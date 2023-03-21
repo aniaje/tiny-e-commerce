@@ -52,13 +52,6 @@ export default function CheckoutPag() {
 
   console.log(basketProducts);
 
-  // const basketProducts: IProductQ[] = basketItems
-  //   .map((item) => {
-  //     const product = basket.find((obj) => obj._id === item.id);
-  //     return product ? { ...product, quantity: item.quantity } : null;
-  //   })
-  //   .filter((item) => item !== null);
-
   console.log(basketProducts);
   const {
     register,
@@ -109,7 +102,7 @@ export default function CheckoutPag() {
         </div>
       ))}
 
-      {!basketItems.length && (
+      {basketItems.length && (
         <form className="" onSubmit={handleSubmit(onSubmit)}>
           <h3 className="mt-8 mb-3 text-center">order here!</h3>
           <input
@@ -142,11 +135,11 @@ export default function CheckoutPag() {
             placeholder="E-mail address"
           />
           <input className="bg-emerald-400 py-2 px-4 rounded" type="submit" />
-          {/* <div className="mt-4">
+          <div className="mt-4">
             {" "}
             <div className="flex ">
               <h3 className="grow text-gray-400 font-bold ">subtotal:</h3>
-              <h3>{subtotal}</h3>
+              <h3></h3>
             </div>
             <div className="flex pb-2">
               <h3 className="grow text-gray-400 font-bold ">delivery:</h3>
@@ -156,7 +149,7 @@ export default function CheckoutPag() {
               <h3 className="grow text-gray-400 font-bold ">total:</h3>
               <h3></h3>
             </div>
-          </div> */}
+          </div>
         </form>
       )}
     </Layout>
