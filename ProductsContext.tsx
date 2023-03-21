@@ -1,4 +1,10 @@
-import React, { createContext, ReactNode, useContext, useState } from "react";
+import React, {
+  createContext,
+  ReactNode,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 
 interface BasketItem {
   id: string;
@@ -25,6 +31,10 @@ export const useBasket = () => useContext(BasketContext);
 export function BasketContextProvider({ children }: BasketProviderProps) {
   const [basketItems, setBasketItems] = useState<BasketItem[]>([]);
 
+  useEffect(() => {
+    setBasketItems(JSON.parse(localStorage.getItem("cart") || "[]"));
+  }, []);
+
   const basketQuantity = basketItems.reduce(
     (quantity, item) => item.quantity + quantity,
     0
@@ -35,21 +45,24 @@ export function BasketContextProvider({ children }: BasketProviderProps) {
   }
 
   function increaseBasketQuantity(id: string) {
-    setBasketItems((currItems) => {
-      if (currItems.find((item) => item.id === id) == null) {
-        return [...currItems, { id, quantity: 1 }];
-      } else {
-        return currItems.map((item) => {
-          if (item.id === id) {
-            return { ...item, quantity: item.quantity + 1 };
-          } else {
-            return item;
-          }
-        });
-      }
-    });
-    localStorage.setItem("cart", JSON.stringify(basketItems)); // przy pierwszym kliknieciu dodaj do koszyka, nie dodaje mi sie quantity.
+    let cart: BasketItem[] = [...basketItems];
+
+    if (!basketItems.find((item) => item.id === id)) {
+      cart.push({ id, quantity: 1 });
+    } else {
+      cart = basketItems.map((item) => {
+        if (item.id === id) {
+          return { ...item, quantity: item.quantity + 1 };
+        } else {
+          return item;
+        }
+      });
+    }
+    console.log(cart);
+    localStorage.setItem("cart", JSON.stringify(cart));
+    setBasketItems(cart);
   }
+  console.log(basketItems);
 
   function decreaseBasketQuantity(id: string) {
     setBasketItems((currItems) => {

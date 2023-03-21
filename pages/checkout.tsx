@@ -3,7 +3,7 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import Layout from "@/components/Layout";
 import { useBasket } from "@/ProductsContext";
 import axios from "axios";
-import { IProduct } from "@/types";
+import { IProduct, IProductQ } from "@/types";
 
 type orderForm = {
   name: String;
@@ -26,7 +26,7 @@ export default function CheckoutPag() {
   const { basketItems, increaseBasketQuantity, decreaseBasketQuantity } =
     useBasket();
 
-  const [basket, setBasket] = useState([]);
+  const [basket, setBasket] = useState<IProduct[]>([]);
 
   useEffect(() => {
     const uniqueIds = basketItems.map((item) => item.id);
@@ -34,18 +34,30 @@ export default function CheckoutPag() {
       .get("/api/products?ids=" + uniqueIds.join(","))
       .then(function (response) {
         const data = response.data;
-
         setBasket(data);
       });
   }, [basketItems]);
   console.log(basket);
 
-  const basketProducts = basketItems
-    .map((item) => {
-      const product = basket.find((obj) => obj._id === item.id);
-      return product ? { ...product, quantity: item.quantity } : null;
-    })
-    .filter((item) => item !== null);
+  const basketProducts = useMemo<IProductQ[]>(() => {
+    const products = basket.filter((item) =>
+      basketItems.find((product) => item._id === product.id)
+    );
+    return products.map((item) => ({
+      ...item,
+      quantity:
+        basketItems.find((product) => product.id === item._id)?.quantity || 0,
+    }));
+  }, [basket, basketItems]);
+
+  console.log(basketProducts);
+
+  // const basketProducts: IProductQ[] = basketItems
+  //   .map((item) => {
+  //     const product = basket.find((obj) => obj._id === item.id);
+  //     return product ? { ...product, quantity: item.quantity } : null;
+  //   })
+  //   .filter((item) => item !== null);
 
   console.log(basketProducts);
   const {
@@ -61,8 +73,8 @@ export default function CheckoutPag() {
       <h2 className="text-center pb-24 text-2xl">Checkout</h2>
       {!basketItems.length && <div>your shopping cart is empty</div>}
 
-      {basketProducts.map((product: IProduct) => (
-        <div className="flex mb-5">
+      {basketProducts.map((product) => (
+        <div key={product._id} className="flex mb-5">
           <div className="bg-gray-100 p-3 w-64 rounded-xl">
             <img src={product.image} alt="" />
           </div>
@@ -83,7 +95,7 @@ export default function CheckoutPag() {
                 >
                   -
                 </button>
-                <span className="px-4"></span>
+                <span className="px-4">{product.quantity}</span>
                 <button
                   onClick={() => increaseBasketQuantity(product._id)}
                   className="bg-emerald-400 border  px-2 mr-3 rounded-lg text-emerald "
