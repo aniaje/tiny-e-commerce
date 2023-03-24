@@ -6,7 +6,6 @@ import React, {
   useMemo,
   useState,
 } from "react";
-import { isConditionalExpression } from "typescript";
 
 interface BasketItem {
   id: string;
