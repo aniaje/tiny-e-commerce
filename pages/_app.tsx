@@ -1,11 +1,11 @@
-import { BasketContextProvider } from "@/ProductsContext";
+import { ContextProvider } from "@/ProductsContext";
 import "@/styles/globals.css";
 import type { AppProps } from "next/app";
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
-    <BasketContextProvider>
+    <ContextProvider>
       <Component {...pageProps} />
-    </BasketContextProvider>
+    </ContextProvider>
   );
 }

@@ -3,8 +3,10 @@ import React, {
   ReactNode,
   useContext,
   useEffect,
+  useMemo,
   useState,
 } from "react";
+import { isConditionalExpression } from "typescript";
 
 interface BasketItem {
   id: string;
@@ -15,36 +17,39 @@ interface BasketProviderProps {
   children: ReactNode;
 }
 
-interface BasketContext {
+interface Context {
   getItemQuantity: (id: string) => number;
-  increaseBasketQuantity: (id: string) => void;
-  decreaseBasketQuantity: (id: string) => void;
+  increaseQuantity: (id: string) => void;
+  decreaseQuantity: (id: string) => void;
   removeFromBasket: (id: string) => void;
   basketQuantity: number;
   basketItems: BasketItem[];
 }
 
-const BasketContext = createContext({} as BasketContext);
+const Context = createContext({} as Context);
 
-export const useBasket = () => useContext(BasketContext);
+export const useBasket = () => useContext(Context);
 
-export function BasketContextProvider({ children }: BasketProviderProps) {
+export function ContextProvider({ children }: BasketProviderProps) {
   const [basketItems, setBasketItems] = useState<BasketItem[]>([]);
 
   useEffect(() => {
-    setBasketItems(JSON.parse(localStorage.getItem("cart") || "[]"));
+    try {
+      setBasketItems(JSON.parse(localStorage.getItem("cart") || "[]"));
+    } catch {
+      console.log(Error);
+    }
   }, []);
 
-  const basketQuantity = basketItems.reduce(
-    (quantity, item) => item.quantity + quantity,
-    0
-  );
+  const basketQuantity = useMemo(() => {
+    return basketItems.reduce((quantity, item) => item.quantity + quantity, 0);
+  }, [basketItems]);
 
   function getItemQuantity(id: string) {
     return basketItems.find((item) => item.id === id)?.quantity || 0;
   }
 
-  function increaseBasketQuantity(id: string) {
+  function increaseQuantity(id: string) {
     let cart: BasketItem[] = [...basketItems];
 
     if (!basketItems.find((item) => item.id === id)) {
@@ -64,7 +69,7 @@ export function BasketContextProvider({ children }: BasketProviderProps) {
   }
   console.log(basketItems);
 
-  function decreaseBasketQuantity(id: string) {
+  function decreaseQuantity(id: string) {
     setBasketItems((currItems) => {
       if (currItems.find((item) => item.id === id)?.quantity === 1) {
         return currItems.filter((item) => item.id !== id);
@@ -87,17 +92,17 @@ export function BasketContextProvider({ children }: BasketProviderProps) {
   }
 
   return (
-    <BasketContext.Provider
+    <Context.Provider
       value={{
         getItemQuantity,
-        increaseBasketQuantity,
-        decreaseBasketQuantity,
+        increaseQuantity,
+        decreaseQuantity,
         removeFromBasket,
         basketItems,
         basketQuantity,
       }}
     >
       {children}
-    </BasketContext.Provider>
+    </Context.Provider>
   );
 }

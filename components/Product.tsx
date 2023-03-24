@@ -8,7 +8,7 @@ export default function Product({
   description,
   image,
 }: IProduct) {
-  const { increaseBasketQuantity, basketItems } = useBasket();
+  const { increaseQuantity, basketItems } = useBasket();
 
   return (
     <div
@@ -32,7 +32,7 @@ export default function Product({
         </span>
 
         <button
-          onClick={() => increaseBasketQuantity(_id)}
+          onClick={() => increaseQuantity(_id)}
           className=" bg-lime-200 hover:bg-lime-300 rounded-full px-3 py-1 text-2xl  text-gray-700 mr-2 mb-2 "
         >
           +

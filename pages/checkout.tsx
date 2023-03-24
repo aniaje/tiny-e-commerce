@@ -3,19 +3,14 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import Layout from "@/components/Layout";
 import { useBasket } from "@/ProductsContext";
 import axios from "axios";
-import { IProduct, IProductQ } from "@/types";
+import { IProduct, IProductQuantity } from "@/types";
 
-type orderForm = {
-  name: String;
-  street: String;
-  city: String;
-  email: String;
+type OrderForm = {
+  name: string;
+  street: string;
+  city: string;
+  email: string;
 };
-
-export interface CartProductDB {
-  productId: string;
-  quantinty: number;
-}
 
 export interface CartProductNonDB {
   product: IProduct;
@@ -23,13 +18,14 @@ export interface CartProductNonDB {
 }
 
 export default function CheckoutPag() {
-  const { basketItems, increaseBasketQuantity, decreaseBasketQuantity } =
-    useBasket();
+  const { basketItems, increaseQuantity, decreaseQuantity } = useBasket();
 
   const [basket, setBasket] = useState<IProduct[]>([]);
 
   useEffect(() => {
     const uniqueIds = basketItems.map((item) => item.id);
+    //FIXME: if ids in basketItems
+    //loading state react-query use Query
     axios
       .get("/api/products?ids=" + uniqueIds.join(","))
       .then(function (response) {
@@ -37,9 +33,8 @@ export default function CheckoutPag() {
         setBasket(data);
       });
   }, [basketItems]);
-  console.log(basket);
 
-  const basketProducts = useMemo<IProductQ[]>(() => {
+  const basketProducts = useMemo<IProductQuantity[]>(() => {
     const products = basket.filter((item) =>
       basketItems.find((product) => item._id === product.id)
     );
@@ -50,16 +45,13 @@ export default function CheckoutPag() {
     }));
   }, [basket, basketItems]);
 
-  console.log(basketProducts);
-
-  console.log(basketProducts);
   const {
     register,
     handleSubmit,
     watch,
     formState: { errors },
-  } = useForm<orderForm>();
-  const onSubmit: SubmitHandler<orderForm> = (data) => console.log(data);
+  } = useForm<OrderForm>();
+  const onSubmit: SubmitHandler<OrderForm> = (data) => console.log(data);
 
   return (
     <Layout>
@@ -83,14 +75,14 @@ export default function CheckoutPag() {
               <div className="grow">${product.price}</div>
               <div className="">
                 <button
-                  onClick={() => decreaseBasketQuantity(product._id)}
+                  onClick={() => decreaseQuantity(product._id)}
                   className="border border-emerald-400 px-2 rounded-lg text-emerald "
                 >
                   -
                 </button>
                 <span className="px-4">{product.quantity}</span>
                 <button
-                  onClick={() => increaseBasketQuantity(product._id)}
+                  onClick={() => increaseQuantity(product._id)}
                   className="bg-emerald-400 border  px-2 mr-3 rounded-lg text-emerald "
                 >
                   +

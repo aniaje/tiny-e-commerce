@@ -7,6 +7,6 @@ export interface IProduct {
   image: string;
 }
 
-export interface IProductQ extends IProduct {
+export interface IProductQuantity extends IProduct {
   quantity: number;
 }

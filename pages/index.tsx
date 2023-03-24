@@ -5,7 +5,7 @@ import { findAllProducts } from "./api/products";
 import Layout from "@/components/Layout";
 import { IProduct } from "@/types";
 import { useBasket } from "@/ProductsContext";
-import axios from "axios";
+import CategoryItems from "@/components/CategoryItems";
 
 interface HomeProps {
   shopItems: IProduct[];
@@ -16,7 +16,7 @@ export default function Home({ shopItems }: HomeProps) {
   const [search, setSearch] = useState<string>("");
   const [displayedCat, setDisplayedCat] = useState<string>("all");
   const categories = Array.from(new Set(shopItems.map((p) => p.category)));
-  const { basketItems } = useBasket();
+
   const products = useMemo(() => {
     return shopItems.filter((p) =>
       displayedCat === "all"
@@ -39,30 +39,26 @@ export default function Home({ shopItems }: HomeProps) {
           All
         </p>
         {categories.map((categoryName) => (
-          <p className="p-3" onClick={() => setDisplayedCat(categoryName)}>
+          <p
+            key={categoryName}
+            onClick={() => setDisplayedCat(categoryName)}
+            className={`${
+              displayedCat === categoryName
+                ? "underline font-bold"
+                : "font-normal"
+            } cursor-pointer p-3`}
+          >
             {" "}
             {categoryName}
           </p>
         ))}
       </div>
-      <div></div>
       {categories.map((categoryName) => (
-        <div className="grow p-3" key={categoryName}>
-          {products.find((p) => p.category === categoryName) && (
-            <>
-              <h2 className="py-4 text-2xl p-3 capitalize">{categoryName}</h2>
-              <div className="flex flex-wrap -mx-5 overflow-x-scroll  justify-center">
-                {products
-                  .filter((p) => p.category === categoryName)
-                  .map((product) => (
-                    <div key={product._id} className="p-5">
-                      <Product {...product} />
-                    </div>
-                  ))}
-              </div>
-            </>
-          )}
-        </div>
+        <CategoryItems
+          key={categoryName}
+          categoryName={categoryName}
+          products={products.filter((p) => p.category === categoryName)}
+        />
       ))}
     </Layout>
   );
