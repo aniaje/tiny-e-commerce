@@ -66,7 +66,6 @@ export function ContextProvider({ children }: BasketProviderProps) {
     localStorage.setItem("cart", JSON.stringify(cart));
     setBasketItems(cart);
   }
-  console.log(basketItems);
 
   function decreaseQuantity(id: string) {
     setBasketItems((currItems) => {

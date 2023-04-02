@@ -4,7 +4,8 @@ import Layout from "@/components/Layout";
 import { useBasket } from "@/ProductsContext";
 import axios from "axios";
 import { IProduct, IProductQuantity, Order } from "@/types";
-import PaymentInfo from "@/components/PaymentInfo";
+
+import router from "next/router";
 
 export interface CartProductNonDB {
   product: IProduct;
@@ -13,9 +14,7 @@ export interface CartProductNonDB {
 
 export default function CheckoutPag() {
   const { basketItems, increaseQuantity, decreaseQuantity } = useBasket();
-
   const [basket, setBasket] = useState<IProduct[]>([]);
-  const [customer, setCustomer] = useState<Order>();
   const [isSuccessfullySubmitted, setIsSuccessfullySubmitted] =
     useState<Boolean>(false);
 
@@ -44,11 +43,12 @@ export default function CheckoutPag() {
     }));
   }, [basket, basketItems]);
 
-  const delivery = 5;
+  let delivery = 5;
   const subtotal = basketProducts.reduce(
     (total, item) => total + Number(item.price) * item.quantity,
     0
   );
+
   const total = subtotal + delivery;
 
   const {
@@ -59,11 +59,6 @@ export default function CheckoutPag() {
     formState: { errors, isSubmitting },
   } = useForm<Order>();
 
-  const displayPaymentInfo = () => {
-    const paymentInformation = "dddd";
-    return paymentInformation;
-  };
-
   const onSubmit: SubmitHandler<Order> = (data) => {
     axios
       .post("/api/orders", data, {
@@ -71,8 +66,8 @@ export default function CheckoutPag() {
       })
 
       .then((response) => {
-        displayPaymentInfo();
         setIsSuccessfullySubmitted(true);
+        router.push("/thankyou");
       })
       .catch((error) => {
         console.log(error.data);
@@ -181,6 +176,7 @@ export default function CheckoutPag() {
               autoComplete="email"
               placeholder="E-mail address"
             />
+
             <div className="flex justify-end p-4">
               <input
                 className="bg-emerald-400 py-2 px-4 rounded mx-auto"
@@ -195,7 +191,6 @@ export default function CheckoutPag() {
               </p>
             )}
           </form>
-          {isSuccessfullySubmitted && <PaymentInfo info={total} />}
         </>
       )}
     </Layout>
