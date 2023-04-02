@@ -3,8 +3,8 @@ import PaymentInfo from "@/components/PaymentInfo";
 import { useBasket } from "@/ProductsContext";
 
 const thankyou = () => {
-  const { basketItems, total } = useBasket();
-  console.log(basketItems);
+  const { total } = useBasket();
+
   return (
     <Layout>
       <PaymentInfo info={total} />

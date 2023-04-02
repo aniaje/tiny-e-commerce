@@ -17,10 +17,8 @@ export default function CheckoutPag() {
     basketItems,
     increaseQuantity,
     decreaseQuantity,
-    basketProducts,
-    total,
-    subtotal,
-    delivery,
+    basketFinal,
+    setBasketFinal,
   } = useBasket();
   const [basket, setBasket] = useState<IProduct[]>([]);
   const [isSuccessfullySubmitted, setIsSuccessfullySubmitted] =
@@ -30,9 +28,35 @@ export default function CheckoutPag() {
     register,
     handleSubmit,
     watch,
-
     formState: { errors, isSubmitting },
   } = useForm<Order>();
+
+  if (basketItems) {
+    useEffect(() => {
+      const uniqueIds = basketItems.map((item) => item.id);
+      axios
+        .get("/api/products?ids=" + uniqueIds.join(","))
+        .then(function (response) {
+          const data = response.data;
+          setBasket(data);
+        });
+    }, [basketItems]);
+  }
+
+  const basketProducts = useMemo<IProductQuantity[]>(() => {
+    const products = basket.filter((item) =>
+      basketItems.find((product) => item._id === product.id)
+    );
+    return products.map((item) => ({
+      ...item,
+      quantity:
+        basketItems.find((product) => product.id === item._id)?.quantity || 0,
+    }));
+  }, [basket, basketItems]);
+
+  useEffect(() => {
+    setBasketFinal(basketProducts);
+  }, [basket]);
 
   const onSubmit: SubmitHandler<Order> = (data) => {
     axios
@@ -89,7 +113,7 @@ export default function CheckoutPag() {
           </div>
         </div>
       ))}
-      {basketItems.length && (
+      {/* {basketItems.length && (
         <>
           <div className="mt-4">
             {" "}
@@ -107,7 +131,7 @@ export default function CheckoutPag() {
             </div>
           </div>
         </>
-      )}
+      )} */}
       {basketItems.length && (
         <>
           <form className="" onSubmit={handleSubmit(onSubmit)}>
@@ -165,4 +189,7 @@ export default function CheckoutPag() {
       )}
     </Layout>
   );
+}
+function setBasketFinal(basketProducts: IProductQuantity[]) {
+  throw new Error("Function not implemented.");
 }
