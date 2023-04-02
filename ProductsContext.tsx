@@ -1,3 +1,4 @@
+import axios from "axios";
 import React, {
   createContext,
   ReactNode,
@@ -6,6 +7,7 @@ import React, {
   useMemo,
   useState,
 } from "react";
+import { IProduct, IProductQuantity } from "./types";
 
 interface BasketItem {
   id: string;
@@ -22,7 +24,11 @@ interface Context {
   decreaseQuantity: (id: string) => void;
   removeFromBasket: (id: string) => void;
   basketQuantity: number;
+  total: number;
+  subtotal: number;
+  delivery: number;
   basketItems: BasketItem[];
+  basketProducts: IProduct[];
 }
 
 const Context = createContext({} as Context);
@@ -31,6 +37,40 @@ export const useBasket = () => useContext(Context);
 
 export function ContextProvider({ children }: BasketProviderProps) {
   const [basketItems, setBasketItems] = useState<BasketItem[]>([]);
+  const [basket, setBasket] = useState<IProduct[]>([]);
+
+  console.log(basketItems);
+  if (basketItems) {
+    useEffect(() => {
+      const uniqueIds = basketItems.map((item) => item.id);
+
+      axios
+        .get("/api/products?ids=" + uniqueIds.join(","))
+        .then(function (response) {
+          const data = response.data;
+          setBasket(data);
+        });
+    }, [basketItems]);
+  }
+
+  const basketProducts = useMemo<IProductQuantity[]>(() => {
+    const products = basket.filter((item) =>
+      basketItems.find((product) => item._id === product.id)
+    );
+    return products.map((item) => ({
+      ...item,
+      quantity:
+        basketItems.find((product) => product.id === item._id)?.quantity || 0,
+    }));
+  }, [basket, basketItems]);
+
+  const delivery = 5;
+  const subtotal = basketProducts.reduce(
+    (total, item) => total + Number(item.price) * item.quantity,
+    0
+  );
+
+  const total = subtotal + delivery;
 
   useEffect(() => {
     try {
@@ -98,6 +138,10 @@ export function ContextProvider({ children }: BasketProviderProps) {
         removeFromBasket,
         basketItems,
         basketQuantity,
+        basketProducts,
+        total,
+        subtotal,
+        delivery,
       }}
     >
       {children}

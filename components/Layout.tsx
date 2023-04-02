@@ -10,10 +10,7 @@ interface LayoutProps {
 export default function Layout({ children }: LayoutProps) {
   return (
     <>
-      <div>
-        <HeaderImg />
-      </div>
-
+      <HeaderImg />
       <div className="flex flex-col h-screen justify-between">
         <div className="p-5 ">{children}</div>
         <Footer />

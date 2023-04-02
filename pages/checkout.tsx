@@ -13,43 +13,18 @@ export interface CartProductNonDB {
 }
 
 export default function CheckoutPag() {
-  const { basketItems, increaseQuantity, decreaseQuantity } = useBasket();
+  const {
+    basketItems,
+    increaseQuantity,
+    decreaseQuantity,
+    basketProducts,
+    total,
+    subtotal,
+    delivery,
+  } = useBasket();
   const [basket, setBasket] = useState<IProduct[]>([]);
   const [isSuccessfullySubmitted, setIsSuccessfullySubmitted] =
     useState<Boolean>(false);
-
-  console.log(basketItems);
-  if (basketItems) {
-    useEffect(() => {
-      const uniqueIds = basketItems.map((item) => item.id);
-
-      axios
-        .get("/api/products?ids=" + uniqueIds.join(","))
-        .then(function (response) {
-          const data = response.data;
-          setBasket(data);
-        });
-    }, [basketItems]);
-  }
-
-  const basketProducts = useMemo<IProductQuantity[]>(() => {
-    const products = basket.filter((item) =>
-      basketItems.find((product) => item._id === product.id)
-    );
-    return products.map((item) => ({
-      ...item,
-      quantity:
-        basketItems.find((product) => product.id === item._id)?.quantity || 0,
-    }));
-  }, [basket, basketItems]);
-
-  let delivery = 5;
-  const subtotal = basketProducts.reduce(
-    (total, item) => total + Number(item.price) * item.quantity,
-    0
-  );
-
-  const total = subtotal + delivery;
 
   const {
     register,
@@ -185,11 +160,6 @@ export default function CheckoutPag() {
                 disabled={isSubmitting}
               />
             </div>
-            {isSuccessfullySubmitted && (
-              <p className="text-green-800 text-2xl">
-                your order has been made!
-              </p>
-            )}
           </form>
         </>
       )}

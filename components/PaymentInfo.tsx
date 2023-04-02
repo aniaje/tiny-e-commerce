@@ -3,7 +3,10 @@ interface Props {
 }
 
 const PaymentInfo = ({ info }: Props) => (
-  <div className="w-full h-40 border-double border-4 border-emerald-500 rounded  grid place-items-center ">
+  <div
+    className="w-full p-12
+  h-40 border-double border-4 border-emerald-500 rounded  grid place-items-center "
+  >
     <p>Make a payment of $ {info} to an account</p>
     <p>LOL 85109 024028 2973364 85969</p>
   </div>
