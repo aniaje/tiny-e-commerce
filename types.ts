@@ -1,3 +1,5 @@
+import React from "react";
+
 export interface IProduct {
   _id: string;
   name: string;
@@ -10,3 +12,15 @@ export interface IProduct {
 export interface IProductQuantity extends IProduct {
   quantity: number;
 }
+
+export type Order = {
+  name: string;
+  street: string;
+  city: string;
+  email: string;
+  basketProducts?: [];
+};
+
+export type RootProps = {
+  children: React.ReactNode;
+};

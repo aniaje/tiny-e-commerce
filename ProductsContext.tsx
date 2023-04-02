@@ -62,7 +62,7 @@ export function ContextProvider({ children }: BasketProviderProps) {
         }
       });
     }
-    console.log(cart);
+
     localStorage.setItem("cart", JSON.stringify(cart));
     setBasketItems(cart);
   }
