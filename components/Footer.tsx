@@ -8,7 +8,7 @@ export default function Footer() {
   const router = useRouter();
   const path = router.pathname;
 
-  const { selectedProducts } = useBasket();
+  const { basketQuantity } = useBasket();
 
   return (
     <footer className="sticky bottom-0 mt-auto bg-white p-5 w-full flex border-t border-gray-200 text-gray-4 space-x-12 justify-center">
@@ -19,20 +19,22 @@ export default function Footer() {
           "flex-col items-center justify-center items-center"
         }
       >
+        <pre>{path}</pre>
         <AiOutlineHome />
-        <span>Home</span>
+        Home
       </Link>
       <Link
         href={"/checkout"}
         className={
-          (path === "/" ? "text-emerald-600" : "") +
+          (path === "/checkout" ? "text-emerald-600" : "") +
           "flex-col items-center justify-center items-center"
         }
       >
         {" "}
         <AiOutlineShoppingCart />
-        {selectedProducts.reduce((acc, item) => acc + item.quantity, 0)}
+        {basketQuantity}
       </Link>
+      <Link href={"/about"}> About</Link>
     </footer>
   );
 }

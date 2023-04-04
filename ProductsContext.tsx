@@ -1,68 +1,107 @@
-import React, { createContext, useContext, useState } from "react";
+import React, {
+  createContext,
+  ReactNode,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+
 interface BasketItem {
   id: string;
   quantity: number;
 }
 
-interface IProductContext {
-  selectedProducts: BasketItem[];
-  addProduct: (id: string) => void;
-  removeProduct: (id: string) => void;
+interface BasketProviderProps {
+  children: ReactNode;
 }
 
-export const ProductsContext = createContext<IProductContext>({
-  selectedProducts: [],
-  addProduct: (id: string) => {},
-  removeProduct: (id: string) => {},
-});
+interface Context {
+  getItemQuantity: (id: string) => number;
+  increaseQuantity: (id: string) => void;
+  decreaseQuantity: (id: string) => void;
+  removeFromBasket: (id: string) => void;
+  basketQuantity: number;
+  basketItems: BasketItem[];
+}
 
-export function ProductsContextProvider({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  const [selectedProducts, setSelectedProducts] = useState<BasketItem[]>([]);
+const Context = createContext({} as Context);
 
-  const saveToCart = () => {
-    localStorage.setItem("cart", JSON.stringify(selectedProducts));
-  };
+export const useBasket = () => useContext(Context);
 
-  console.log(selectedProducts);
+export function ContextProvider({ children }: BasketProviderProps) {
+  const [basketItems, setBasketItems] = useState<BasketItem[]>([]);
 
-  function modifyProductsQuantity(id: string, type: "ADD" | "REMOVE") {
-    if (selectedProducts.some((item) => item.id === id)) {
-      const pos = selectedProducts.findIndex((item) => {
-        return item.id === id;
-      });
-      const selectedItems = [...selectedProducts];
-      selectedItems[pos].quantity =
-        type === "ADD"
-          ? selectedItems[pos].quantity + 1
-          : selectedItems[pos].quantity - 1;
-      setSelectedProducts(selectedItems);
-      saveToCart();
-    } else {
-      if (type === "ADD") {
-        setSelectedProducts([...selectedProducts, { id, quantity: 1 }]);
-      }
+  useEffect(() => {
+    try {
+      setBasketItems(JSON.parse(localStorage.getItem("cart") || "[]"));
+    } catch {
+      console.log(Error);
     }
+  }, []);
+
+  const basketQuantity = useMemo(() => {
+    return basketItems.reduce((quantity, item) => item.quantity + quantity, 0);
+  }, [basketItems]);
+
+  function getItemQuantity(id: string) {
+    return basketItems.find((item) => item.id === id)?.quantity || 0;
+  }
+
+  function increaseQuantity(id: string) {
+    let cart: BasketItem[] = [...basketItems];
+
+    if (!basketItems.find((item) => item.id === id)) {
+      cart.push({ id, quantity: 1 });
+    } else {
+      cart = basketItems.map((item) => {
+        if (item.id === id) {
+          return { ...item, quantity: item.quantity + 1 };
+        } else {
+          return item;
+        }
+      });
+    }
+    console.log(cart);
+    localStorage.setItem("cart", JSON.stringify(cart));
+    setBasketItems(cart);
+  }
+  console.log(basketItems);
+
+  function decreaseQuantity(id: string) {
+    setBasketItems((currItems) => {
+      if (currItems.find((item) => item.id === id)?.quantity === 1) {
+        return currItems.filter((item) => item.id !== id);
+      } else {
+        return currItems.map((item) => {
+          if (item.id === id) {
+            return { ...item, quantity: item.quantity - 1 };
+          } else {
+            return item;
+          }
+        });
+      }
+    });
+  }
+
+  function removeFromBasket(id: string) {
+    setBasketItems((currItems) => {
+      return currItems.filter((item) => item.id !== id);
+    });
   }
 
   return (
-    <ProductsContext.Provider
+    <Context.Provider
       value={{
-        selectedProducts,
-        addProduct: (id: string) => {
-          modifyProductsQuantity(id, "ADD");
-        },
-        removeProduct: (id: string) => {
-          modifyProductsQuantity(id, "REMOVE");
-        },
+        getItemQuantity,
+        increaseQuantity,
+        decreaseQuantity,
+        removeFromBasket,
+        basketItems,
+        basketQuantity,
       }}
     >
       {children}
-    </ProductsContext.Provider>
+    </Context.Provider>
   );
 }
-
-export const useBasket = () => useContext(ProductsContext);

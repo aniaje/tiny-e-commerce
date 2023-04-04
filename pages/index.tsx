@@ -1,9 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Product from "@/components/Product";
 import { initMongoose } from "@/lib/mongoose";
 import { findAllProducts } from "./api/products";
 import Layout from "@/components/Layout";
 import { IProduct } from "@/types";
+import { useBasket } from "@/ProductsContext";
+import CategoryItems from "@/components/CategoryItems";
 
 interface HomeProps {
   shopItems: IProduct[];
@@ -12,12 +14,16 @@ interface HomeProps {
 //</IProduct>
 export default function Home({ shopItems }: HomeProps) {
   const [search, setSearch] = useState<string>("");
-
+  const [displayedCat, setDisplayedCat] = useState<string>("all");
   const categories = Array.from(new Set(shopItems.map((p) => p.category)));
 
-  if (search) {
-    shopItems = shopItems.filter((p) => p.name.toLowerCase().includes(search));
-  }
+  const products = useMemo(() => {
+    return shopItems.filter((p) =>
+      displayedCat === "all"
+        ? p.name.toLowerCase().includes(search)
+        : p.category === displayedCat && p.name.toLowerCase().includes(search)
+    );
+  }, [search, shopItems, displayedCat]);
 
   return (
     <Layout>
@@ -28,23 +34,31 @@ export default function Home({ shopItems }: HomeProps) {
         placeholder="search for products..."
         className="bg-gray-100 w-full py-2 px-4 rounded"
       ></input>
+      <div className="flex ">
+        <p className="p-3" onClick={() => setDisplayedCat("all")}>
+          All
+        </p>
+        {categories.map((categoryName) => (
+          <p
+            key={categoryName}
+            onClick={() => setDisplayedCat(categoryName)}
+            className={`${
+              displayedCat === categoryName
+                ? "underline font-bold"
+                : "font-normal"
+            } cursor-pointer p-3`}
+          >
+            {" "}
+            {categoryName}
+          </p>
+        ))}
+      </div>
       {categories.map((categoryName) => (
-        <div className="grow p-3" key={categoryName}>
-          {shopItems.find((p) => p.category === categoryName) && (
-            <>
-              <h2 className="py-4 text-2xl p-3 capitalize">{categoryName}</h2>
-              <div className="flex flex-wrap -mx-5 overflow-x-scroll  justify-center">
-                {shopItems
-                  .filter((p) => p.category === categoryName)
-                  .map((product) => (
-                    <div key={product._id} className="p-5">
-                      <Product {...product} />
-                    </div>
-                  ))}
-              </div>
-            </>
-          )}
-        </div>
+        <CategoryItems
+          key={categoryName}
+          categoryName={categoryName}
+          products={products.filter((p) => p.category === categoryName)}
+        />
       ))}
     </Layout>
   );
