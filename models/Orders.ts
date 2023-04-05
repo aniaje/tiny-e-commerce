@@ -1,7 +1,7 @@
-import { Order } from "@/types";
+import { IOrder, Order } from "@/types";
 import { model, models, Schema } from "mongoose";
 
-const OrderSchema = new Schema<Order>({
+const OrderSchema = new Schema<IOrder>({
   name: String,
   street: String,
   city: String,
@@ -9,6 +9,6 @@ const OrderSchema = new Schema<Order>({
   basketProducts: [],
 });
 
-const Order = models?.Order || model<Order>("Order", OrderSchema);
+const Order = models?.Order || model<IOrder>("Order", OrderSchema);
 
 export default Order;

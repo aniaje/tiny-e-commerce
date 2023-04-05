@@ -16,5 +16,7 @@ export default async function handle(
   if (ids?.length) {
     const idsArray = ids?.split(",");
     res.json(await Product.find({ _id: { $in: idsArray } }).exec());
+  } else {
+    console.log("nie wiem co tu");
   }
 }

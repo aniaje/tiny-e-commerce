@@ -28,12 +28,12 @@ interface Context {
   basketQuantity: number;
   total: number;
   subtotal: number;
+  delivery: number;
   basketFinal: IProductQuantity[];
   basketItems: BasketItem[];
 }
 
 const Context = createContext({} as Context);
-
 export const useBasket = () => useContext(Context);
 
 export function ContextProvider({ children }: BasketProviderProps) {
@@ -99,7 +99,7 @@ export function ContextProvider({ children }: BasketProviderProps) {
 
   const delivery = 5;
   const subtotal = basketFinal.reduce(
-    (total, item) => total + Number(item.price) * Number(item.quantity),
+    (total, item) => total + Number(item.price) * item.quantity,
     0
   );
   const total = subtotal + delivery;
@@ -117,6 +117,7 @@ export function ContextProvider({ children }: BasketProviderProps) {
         setBasketFinal,
         total,
         subtotal,
+        delivery,
       }}
     >
       {children}

@@ -1,10 +1,9 @@
-import { useEffect, useMemo, useState } from "react";
-import Product from "@/components/Product";
+import { useMemo, useState } from "react";
 import { initMongoose } from "@/lib/mongoose";
 import { findAllProducts } from "./api/products";
 import Layout from "@/components/Layout";
 import { IProduct } from "@/types";
-import { useBasket } from "@/ProductsContext";
+
 import CategoryItems from "@/components/CategoryItems";
 
 interface HomeProps {

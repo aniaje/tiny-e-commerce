@@ -3,7 +3,7 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import Layout from "@/components/Layout";
 import { useBasket } from "@/ProductsContext";
 import axios from "axios";
-import { IProduct, IProductQuantity, Order } from "@/types";
+import { IOrder, IProduct, IProductQuantity } from "@/types";
 
 import router from "next/router";
 
@@ -19,6 +19,9 @@ export default function CheckoutPag() {
     decreaseQuantity,
     basketFinal,
     setBasketFinal,
+    delivery,
+    subtotal,
+    total,
   } = useBasket();
   const [basket, setBasket] = useState<IProduct[]>([]);
   const [isSuccessfullySubmitted, setIsSuccessfullySubmitted] =
@@ -29,21 +32,27 @@ export default function CheckoutPag() {
     handleSubmit,
     watch,
     formState: { errors, isSubmitting },
-  } = useForm<Order>();
+  } = useForm<IOrder>();
 
-  if (basketItems) {
+  if (basketItems.length) {
     useEffect(() => {
-      const uniqueIds = basketItems.map((item) => item.id);
+      const ids = basketItems.map((item) => item.id);
       axios
-        .get("/api/products?ids=" + uniqueIds.join(","))
+        .get("/api/products?ids=" + ids.join(","))
         .then(function (response) {
           const data = response.data;
           setBasket(data);
+        })
+        .catch((error) => {
+          console.log(error);
         });
+      // .finally(
+      //   console.log('ustaw setIsLoading')
+      // );
     }, [basketItems]);
   }
 
-  const basketProducts = useMemo<IProductQuantity[]>(() => {
+  const basketProducts = useMemo(() => {
     const products = basket.filter((item) =>
       basketItems.find((product) => item._id === product.id)
     );
@@ -58,11 +67,9 @@ export default function CheckoutPag() {
     setBasketFinal(basketProducts);
   }, [basket]);
 
-  const onSubmit: SubmitHandler<Order> = (data) => {
+  const onSubmit: SubmitHandler<IOrder> = (data) => {
     axios
-      .post("/api/orders", data, {
-        headers: { "Content-Type": "application/json" },
-      })
+      .post("/api/orders", data)
 
       .then((response) => {
         setIsSuccessfullySubmitted(true);
@@ -72,6 +79,7 @@ export default function CheckoutPag() {
         console.log(error.data);
       });
   };
+  // if (isLoading) return <Spinner />;
 
   return (
     <Layout>
@@ -81,7 +89,7 @@ export default function CheckoutPag() {
       {basketProducts.map((product) => (
         <div key={product._id} className="flex mb-5">
           <div className="bg-gray-100 p-3 w-64 rounded-xl">
-            <img src={product.image} alt="" />
+            <img src={product.image} alt={product.name} />
           </div>
           <div
             className="pl-4
@@ -113,7 +121,7 @@ export default function CheckoutPag() {
           </div>
         </div>
       ))}
-      {/* {basketItems.length && (
+      {basketItems.length && (
         <>
           <div className="mt-4">
             {" "}
@@ -131,7 +139,7 @@ export default function CheckoutPag() {
             </div>
           </div>
         </>
-      )} */}
+      )}
       {basketItems.length && (
         <>
           <form className="" onSubmit={handleSubmit(onSubmit)}>
@@ -148,7 +156,6 @@ export default function CheckoutPag() {
               {...register("name", { required: true })}
               className="bg-gray-100 w-full py-2 px-4 rounded mb-2 "
               type="text"
-              defaultValue=""
               autoComplete="name"
               placeholder="Your Name"
             />
@@ -157,21 +164,18 @@ export default function CheckoutPag() {
               {...register("street")}
               className="bg-gray-100 w-full py-2 px-4 rounded mb-2"
               type="text"
-              defaultValue=""
               placeholder="Street adress, number"
             />
             <input
               {...register("city")}
               className="bg-gray-100 w-full py-2 px-4 rounded mb-2"
               type="text"
-              defaultValue=""
               placeholder="City and postal code"
             />
             <input
               {...register("email")}
               className="bg-gray-100 w-full py-2 px-4 rounded mb-2"
               type="text"
-              defaultValue=""
               autoComplete="email"
               placeholder="E-mail address"
             />

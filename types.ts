@@ -14,7 +14,7 @@ export interface IProductQuantity extends IProduct {
   quantity: number;
 }
 
-export type Order = {
+export type IOrder = {
   name: string;
   street: string;
   city: string;
