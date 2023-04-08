@@ -35,7 +35,8 @@ const HeaderImg = () => (
         width="0"
         height="0"
         sizes="100vw"
-        className="object-cover rounded-lg  h-full min-w-full"
+        className="object-cover rounded-lg  h-full min-w-full 
+        "
       />
     </div>
   </div>

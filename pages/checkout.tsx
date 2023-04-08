@@ -26,16 +26,18 @@ export default function CheckoutPag() {
   const [basket, setBasket] = useState<IProduct[]>([]);
   const [isSuccessfullySubmitted, setIsSuccessfullySubmitted] =
     useState<Boolean>(false);
+  const [loading, setLoading] = useState<Boolean>(false);
 
   const {
     register,
     handleSubmit,
-    watch,
+
     formState: { errors, isSubmitting },
   } = useForm<IOrder>();
 
-  if (basketItems.length) {
-    useEffect(() => {
+  useEffect(() => {
+    if (basketItems.length) {
+      setLoading(true);
       const ids = basketItems.map((item) => item.id);
       axios
         .get("/api/products?ids=" + ids.join(","))
@@ -45,12 +47,15 @@ export default function CheckoutPag() {
         })
         .catch((error) => {
           console.log(error);
+        })
+        .finally(() => {
+          console.log("success");
+          setLoading(false);
         });
-      // .finally(
-      //   console.log('ustaw setIsLoading')
-      // );
-    }, [basketItems]);
-  }
+    } else {
+      setLoading(false);
+    }
+  }, [basketItems]);
 
   const basketProducts = useMemo(() => {
     const products = basket.filter((item) =>
@@ -73,7 +78,8 @@ export default function CheckoutPag() {
 
       .then((response) => {
         setIsSuccessfullySubmitted(true);
-        router.push("/thankyou");
+
+        setTimeout(() => router.push("/thankyou"), 1500);
       })
       .catch((error) => {
         console.log(error.data);
@@ -179,7 +185,11 @@ export default function CheckoutPag() {
               autoComplete="email"
               placeholder="E-mail address"
             />
-
+            {isSuccessfullySubmitted && (
+              <p className="text-green-700">
+                You've made an order! Redireting to payment...
+              </p>
+            )}
             <div className="flex justify-end p-4">
               <input
                 className="bg-emerald-400 py-2 px-4 rounded mx-auto"

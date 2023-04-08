@@ -8,7 +8,7 @@ export default function Product({
   description,
   image,
 }: IProduct) {
-  const { increaseQuantity, basketItems } = useBasket();
+  const { increaseQuantity } = useBasket();
 
   return (
     <div

@@ -1,4 +1,4 @@
-import { IOrder, Order } from "@/types";
+import { IOrder } from "@/types";
 import { model, models, Schema } from "mongoose";
 
 const OrderSchema = new Schema<IOrder>({

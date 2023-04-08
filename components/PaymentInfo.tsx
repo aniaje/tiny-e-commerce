@@ -9,6 +9,10 @@ const PaymentInfo = ({ info }: Props) => (
   >
     <p>Make a payment of $ {info} to an account</p>
     <p>LOL 85109 024028 2973364 85969</p>
+    <p>
+      and send us a confirmation to the email address:
+      <a href="mailto:jezowskanan@gmail.com">mail</a>
+    </p>
   </div>
 );
 

@@ -10,11 +10,27 @@ interface HomeProps {
   shopItems: IProduct[];
 }
 
+interface Category {
+  key: string | null;
+  label: string;
+}
+
 //</IProduct>
 export default function Home({ shopItems }: HomeProps) {
   const [search, setSearch] = useState<string>("");
   const [displayedCat, setDisplayedCat] = useState<string>("all");
+
   const categories = Array.from(new Set(shopItems.map((p) => p.category)));
+
+  const categoriesAndAll: Category[] = categories.map((category: string) => ({
+    key: category,
+    label: category,
+  }));
+
+  categoriesAndAll.unshift({
+    key: null,
+    label: "all",
+  });
 
   const products = useMemo(() => {
     return shopItems.filter((p) =>
@@ -34,29 +50,23 @@ export default function Home({ shopItems }: HomeProps) {
         className="bg-gray-100 w-full py-2 px-4 rounded"
       ></input>
       <div className="flex ">
-        <p className="p-3" onClick={() => setDisplayedCat("all")}>
-          All
-        </p>
-        {categories.map((categoryName) => (
+        {categoriesAndAll.map(({ key, label }) => (
           <p
-            key={categoryName}
-            onClick={() => setDisplayedCat(categoryName)}
+            key={key}
+            onClick={() => setDisplayedCat(label)}
             className={`${
-              displayedCat === categoryName
-                ? "underline font-bold"
-                : "font-normal"
+              displayedCat === label ? "underline font-bold" : "font-normal"
             } cursor-pointer p-3`}
           >
-            {" "}
-            {categoryName}
+            {label}
           </p>
         ))}
       </div>
-      {categories.map((categoryName) => (
+      {categoriesAndAll.map(({ key, label }) => (
         <CategoryItems
-          key={categoryName}
-          categoryName={categoryName}
-          products={products.filter((p) => p.category === categoryName)}
+          key={key}
+          categoryName={label}
+          products={products.filter((p) => p.category == key)}
         />
       ))}
     </Layout>

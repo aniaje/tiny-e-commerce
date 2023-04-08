@@ -42,7 +42,8 @@ export function ContextProvider({ children }: BasketProviderProps) {
 
   useEffect(() => {
     try {
-      setBasketItems(JSON.parse(localStorage.getItem("cart") || "[]"));
+      const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+      setBasketItems(cart);
     } catch {
       console.log(Error);
     }
@@ -74,10 +75,10 @@ export function ContextProvider({ children }: BasketProviderProps) {
     localStorage.setItem("cart", JSON.stringify(cart));
     setBasketItems(cart);
   }
-
   function decreaseQuantity(id: string) {
     setBasketItems((currItems) => {
-      if (currItems.find((item) => item.id === id)?.quantity === 1) {
+      const item = currItems.find((item) => item.id === id);
+      if (item?.quantity === 1) {
         return currItems.filter((item) => item.id !== id);
       } else {
         return currItems.map((item) => {
