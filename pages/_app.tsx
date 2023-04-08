@@ -1,11 +1,14 @@
 import { ContextProvider } from "@/ProductsContext";
+import ReactQuery from "@/lib/react-query.component";
 import "@/styles/globals.css";
 import type { AppProps } from "next/app";
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
-    <ContextProvider>
-      <Component {...pageProps} />
-    </ContextProvider>
+    <ReactQuery>
+      <ContextProvider>
+        <Component {...pageProps} />
+      </ContextProvider>
+    </ReactQuery>
   );
 }

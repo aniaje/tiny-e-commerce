@@ -1,11 +1,14 @@
 import React, {
   createContext,
+  Dispatch,
   ReactNode,
+  SetStateAction,
   useContext,
   useEffect,
   useMemo,
   useState,
 } from "react";
+import { IProduct, IProductQuantity } from "./types";
 
 interface BasketItem {
   id: string;
@@ -21,20 +24,26 @@ interface Context {
   increaseQuantity: (id: string) => void;
   decreaseQuantity: (id: string) => void;
   removeFromBasket: (id: string) => void;
+  setBasketFinal: Dispatch<SetStateAction<IProductQuantity[]>>;
   basketQuantity: number;
+  total: number;
+  subtotal: number;
+  delivery: number;
+  basketFinal: IProductQuantity[];
   basketItems: BasketItem[];
 }
 
 const Context = createContext({} as Context);
-
 export const useBasket = () => useContext(Context);
 
 export function ContextProvider({ children }: BasketProviderProps) {
   const [basketItems, setBasketItems] = useState<BasketItem[]>([]);
+  const [basketFinal, setBasketFinal] = useState<IProductQuantity[]>([]);
 
   useEffect(() => {
     try {
-      setBasketItems(JSON.parse(localStorage.getItem("cart") || "[]"));
+      const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+      setBasketItems(cart);
     } catch {
       console.log(Error);
     }
@@ -62,15 +71,14 @@ export function ContextProvider({ children }: BasketProviderProps) {
         }
       });
     }
-    console.log(cart);
+
     localStorage.setItem("cart", JSON.stringify(cart));
     setBasketItems(cart);
   }
-  console.log(basketItems);
-
   function decreaseQuantity(id: string) {
     setBasketItems((currItems) => {
-      if (currItems.find((item) => item.id === id)?.quantity === 1) {
+      const item = currItems.find((item) => item.id === id);
+      if (item?.quantity === 1) {
         return currItems.filter((item) => item.id !== id);
       } else {
         return currItems.map((item) => {
@@ -90,6 +98,13 @@ export function ContextProvider({ children }: BasketProviderProps) {
     });
   }
 
+  const delivery = 5;
+  const subtotal = basketFinal.reduce(
+    (total, item) => total + Number(item.price) * item.quantity,
+    0
+  );
+  const total = subtotal + delivery;
+
   return (
     <Context.Provider
       value={{
@@ -99,6 +114,11 @@ export function ContextProvider({ children }: BasketProviderProps) {
         removeFromBasket,
         basketItems,
         basketQuantity,
+        basketFinal,
+        setBasketFinal,
+        total,
+        subtotal,
+        delivery,
       }}
     >
       {children}

@@ -1,3 +1,4 @@
+import HeaderImg from "@/components/HeaderImg";
 import { Html, Head, Main, NextScript } from "next/document";
 
 export default function Document() {

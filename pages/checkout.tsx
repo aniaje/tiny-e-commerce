@@ -3,14 +3,9 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import Layout from "@/components/Layout";
 import { useBasket } from "@/ProductsContext";
 import axios from "axios";
-import { IProduct, IProductQuantity } from "@/types";
+import { IOrder, IProduct, IProductQuantity } from "@/types";
 
-type OrderForm = {
-  name: string;
-  street: string;
-  city: string;
-  email: string;
-};
+import router from "next/router";
 
 export interface CartProductNonDB {
   product: IProduct;
@@ -18,23 +13,51 @@ export interface CartProductNonDB {
 }
 
 export default function CheckoutPag() {
-  const { basketItems, increaseQuantity, decreaseQuantity } = useBasket();
-
+  const {
+    basketItems,
+    increaseQuantity,
+    decreaseQuantity,
+    basketFinal,
+    setBasketFinal,
+    delivery,
+    subtotal,
+    total,
+  } = useBasket();
   const [basket, setBasket] = useState<IProduct[]>([]);
+  const [isSuccessfullySubmitted, setIsSuccessfullySubmitted] =
+    useState<Boolean>(false);
+  const [loading, setLoading] = useState<Boolean>(false);
+
+  const {
+    register,
+    handleSubmit,
+
+    formState: { errors, isSubmitting },
+  } = useForm<IOrder>();
 
   useEffect(() => {
-    const uniqueIds = basketItems.map((item) => item.id);
-    //FIXME: if ids in basketItems
-    //loading state react-query use Query
-    axios
-      .get("/api/products?ids=" + uniqueIds.join(","))
-      .then(function (response) {
-        const data = response.data;
-        setBasket(data);
-      });
+    if (basketItems.length) {
+      setLoading(true);
+      const ids = basketItems.map((item) => item.id);
+      axios
+        .get("/api/products?ids=" + ids.join(","))
+        .then(function (response) {
+          const data = response.data;
+          setBasket(data);
+        })
+        .catch((error) => {
+          console.log(error);
+        })
+        .finally(() => {
+          console.log("success");
+          setLoading(false);
+        });
+    } else {
+      setLoading(false);
+    }
   }, [basketItems]);
 
-  const basketProducts = useMemo<IProductQuantity[]>(() => {
+  const basketProducts = useMemo(() => {
     const products = basket.filter((item) =>
       basketItems.find((product) => item._id === product.id)
     );
@@ -45,13 +68,24 @@ export default function CheckoutPag() {
     }));
   }, [basket, basketItems]);
 
-  const {
-    register,
-    handleSubmit,
-    watch,
-    formState: { errors },
-  } = useForm<OrderForm>();
-  const onSubmit: SubmitHandler<OrderForm> = (data) => console.log(data);
+  useEffect(() => {
+    setBasketFinal(basketProducts);
+  }, [basket]);
+
+  const onSubmit: SubmitHandler<IOrder> = (data) => {
+    axios
+      .post("/api/orders", data)
+
+      .then((response) => {
+        setIsSuccessfullySubmitted(true);
+
+        setTimeout(() => router.push("/thankyou"), 1500);
+      })
+      .catch((error) => {
+        console.log(error.data);
+      });
+  };
+  // if (isLoading) return <Spinner />;
 
   return (
     <Layout>
@@ -61,7 +95,7 @@ export default function CheckoutPag() {
       {basketProducts.map((product) => (
         <div key={product._id} className="flex mb-5">
           <div className="bg-gray-100 p-3 w-64 rounded-xl">
-            <img src={product.image} alt="" />
+            <img src={product.image} alt={product.name} />
           </div>
           <div
             className="pl-4
@@ -93,57 +127,83 @@ export default function CheckoutPag() {
           </div>
         </div>
       ))}
-
       {basketItems.length && (
-        <form className="" onSubmit={handleSubmit(onSubmit)}>
-          <h3 className="mt-8 mb-3 text-center">order here!</h3>
-          <input
-            {...register("name", { required: true })}
-            className="bg-gray-100 w-full py-2 px-4 rounded mb-2 "
-            type="text"
-            defaultValue=""
-            placeholder="Your Name"
-          />
-          {errors.name && <span>This field is required</span>}
-          <input
-            {...register("street")}
-            className="bg-gray-100 w-full py-2 px-4 rounded mb-2"
-            type="text"
-            defaultValue=""
-            placeholder="Street adress, number"
-          />
-          <input
-            {...register("city")}
-            className="bg-gray-100 w-full py-2 px-4 rounded mb-2"
-            type="text"
-            defaultValue=""
-            placeholder="City and postal code"
-          />
-          <input
-            {...register("email")}
-            className="bg-gray-100 w-full py-2 px-4 rounded mb-2"
-            type="text"
-            defaultValue=""
-            placeholder="E-mail address"
-          />
-          <input className="bg-emerald-400 py-2 px-4 rounded" type="submit" />
+        <>
           <div className="mt-4">
             {" "}
             <div className="flex ">
               <h3 className="grow text-gray-400 font-bold ">subtotal:</h3>
-              <h3></h3>
+              <h3>{subtotal}</h3>
             </div>
             <div className="flex pb-2">
               <h3 className="grow text-gray-400 font-bold ">delivery:</h3>
-              <h3></h3>
+              <h3>{delivery}</h3>
             </div>
             <div className="flex border-t border-dashed border-emerald-400 pt-2">
               <h3 className="grow text-gray-400 font-bold ">total:</h3>
-              <h3></h3>
+              <h3>{total}</h3>
             </div>
           </div>
-        </form>
+        </>
+      )}
+      {basketItems.length && (
+        <>
+          <form className="" onSubmit={handleSubmit(onSubmit)}>
+            <h3 className="mt-8 mb-3 text-center font-emerald font-bold">
+              ORDER DATA
+            </h3>
+            <input
+              type="hidden"
+              {...register("basketProducts")}
+              value={JSON.stringify(basketItems)}
+            />
+
+            <input
+              {...register("name", { required: true })}
+              className="bg-gray-100 w-full py-2 px-4 rounded mb-2 "
+              type="text"
+              autoComplete="name"
+              placeholder="Your Name"
+            />
+            {errors.name && <span>This field is required</span>}
+            <input
+              {...register("street")}
+              className="bg-gray-100 w-full py-2 px-4 rounded mb-2"
+              type="text"
+              placeholder="Street adress, number"
+            />
+            <input
+              {...register("city")}
+              className="bg-gray-100 w-full py-2 px-4 rounded mb-2"
+              type="text"
+              placeholder="City and postal code"
+            />
+            <input
+              {...register("email")}
+              className="bg-gray-100 w-full py-2 px-4 rounded mb-2"
+              type="text"
+              autoComplete="email"
+              placeholder="E-mail address"
+            />
+            {isSuccessfullySubmitted && (
+              <p className="text-green-700">
+                You've made an order! Redireting to payment...
+              </p>
+            )}
+            <div className="flex justify-end p-4">
+              <input
+                className="bg-emerald-400 py-2 px-4 rounded mx-auto"
+                type="submit"
+                value="Order now"
+                disabled={isSubmitting}
+              />
+            </div>
+          </form>
+        </>
       )}
     </Layout>
   );
+}
+function setBasketFinal(basketProducts: IProductQuantity[]) {
+  throw new Error("Function not implemented.");
 }
