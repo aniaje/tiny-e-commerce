@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import Layout from "@/components/Layout";
 import { useBasket } from "@/ProductsContext";
+import { useMutation, useQuery, useQueryClient } from "react-query";
 import axios from "axios";
 import { IOrder, IProduct, IProductQuantity } from "@/types";
 
@@ -11,6 +12,9 @@ export interface CartProductNonDB {
   product: IProduct;
   quantity: number;
 }
+
+const PRODUCTS = "PRODUCTS";
+const ORDER = "ORDER";
 
 export default function CheckoutPag() {
   const {
@@ -26,39 +30,64 @@ export default function CheckoutPag() {
   const [basket, setBasket] = useState<IProduct[]>([]);
   const [isSuccessfullySubmitted, setIsSuccessfullySubmitted] =
     useState<Boolean>(false);
-  const [loading, setLoading] = useState<Boolean>(false);
 
   const {
     register,
     handleSubmit,
-
     formState: { errors, isSubmitting },
   } = useForm<IOrder>();
 
-  useEffect(() => {
-    if (basketItems.length) {
-      setLoading(true);
-      const ids = basketItems.map((item) => item.id);
-      axios
-        .get("/api/products?ids=" + ids.join(","))
-        .then(function (response) {
-          const data = response.data;
-          setBasket(data);
-        })
-        .catch((error) => {
-          console.log(error);
-        })
-        .finally(() => {
-          console.log("success");
-          setLoading(false);
-        });
-    } else {
-      setLoading(false);
-    }
-  }, [basketItems]);
+  const ids = basketItems.map((item) => item.id);
+
+  function getProducts() {
+    return axios.get("/api/products?ids=" + ids.join(","));
+  }
+
+  const {
+    isLoading: isLoadingProducts,
+    isError,
+    data,
+  } = useQuery(PRODUCTS, async () => {
+    const { data } = await axios("/api/products?ids=" + ids.join(","));
+    return data;
+  });
+
+  useEffect(() => setBasket(data), [basketItems]);
+
+  console.log(data);
+
+  if (isLoadingProducts) {
+    return <div>Loading...</div>;
+  }
+
+  if (isError) {
+    return <div>Error fetching products</div>;
+  }
+
+  // useEffect(() => {
+  //   if (basketItems.length) {
+  //     setLoading(true);
+  //     const ids = basketItems.map((item) => item.id);
+  //     axios
+  //       .get("/api/products?ids=" + ids.join(","))
+  //       .then(function (response) {
+  //         const data = response.data;
+  //         setBasket(data);
+  //       })
+  //       .catch((error) => {
+  //         console.log(error);
+  //       })
+  //       .finally(() => {
+  //         console.log("success");
+  //         setLoading(false);
+  //       });
+  //   } else {
+  //     setLoading(false);
+  //   }
+  // }, [basketItems]);
 
   const basketProducts = useMemo(() => {
-    const products = basket.filter((item) =>
+    const products = data.filter((item) =>
       basketItems.find((product) => item._id === product.id)
     );
     return products.map((item) => ({
@@ -90,9 +119,9 @@ export default function CheckoutPag() {
   return (
     <Layout>
       <h2 className="text-center pb-24 text-2xl">Checkout</h2>
-      {!basketItems.length && <div>your shopping cart is empty</div>}
+      {!data.length && <div>your shopping cart is empty</div>}
 
-      {basketProducts.map((product) => (
+      {data.map((product) => (
         <div key={product._id} className="flex mb-5">
           <div className="bg-gray-100 p-3 w-64 rounded-xl">
             <img src={product.image} alt={product.name} />
