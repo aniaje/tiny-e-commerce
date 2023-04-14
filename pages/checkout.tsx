@@ -2,15 +2,23 @@ import { useEffect, useMemo, useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import Layout from "@/components/Layout";
 import { useBasket } from "@/ProductsContext";
-import { useMutation, useQuery, useQueryClient } from "react-query";
 import axios from "axios";
 import { IOrder, IProduct, IProductQuantity } from "@/types";
-
 import router from "next/router";
+import { useQuery, useMutation } from "react-query";
+import Modal from "@/components/Modal";
 
 export interface CartProductNonDB {
   product: IProduct;
   quantity: number;
+}
+
+interface IOrderResponse extends IOrder {
+  id: number;
+}
+
+interface State {
+  orderNumber: string;
 }
 
 const PRODUCTS = "PRODUCTS";
@@ -27,9 +35,11 @@ export default function CheckoutPag() {
     subtotal,
     total,
   } = useBasket();
-  const [basket, setBasket] = useState<IProduct[]>([]);
+
   const [isSuccessfullySubmitted, setIsSuccessfullySubmitted] =
     useState<Boolean>(false);
+
+  const [isOpen, setIsOpen] = useState<boolean>(false);
 
   const {
     register,
@@ -39,55 +49,19 @@ export default function CheckoutPag() {
 
   const ids = basketItems.map((item) => item.id);
 
-  function getProducts() {
-    return axios.get("/api/products?ids=" + ids.join(","));
-  }
-
   const {
     isLoading: isLoadingProducts,
     isError,
-    data,
+    data: basket = [],
   } = useQuery(PRODUCTS, async () => {
-    const { data } = await axios("/api/products?ids=" + ids.join(","));
+    const { data } = await axios<IProduct[]>(
+      "/api/products?ids=" + ids.join(",")
+    );
     return data;
   });
 
-  useEffect(() => setBasket(data), [basketItems]);
-
-  console.log(data);
-
-  if (isLoadingProducts) {
-    return <div>Loading...</div>;
-  }
-
-  if (isError) {
-    return <div>Error fetching products</div>;
-  }
-
-  // useEffect(() => {
-  //   if (basketItems.length) {
-  //     setLoading(true);
-  //     const ids = basketItems.map((item) => item.id);
-  //     axios
-  //       .get("/api/products?ids=" + ids.join(","))
-  //       .then(function (response) {
-  //         const data = response.data;
-  //         setBasket(data);
-  //       })
-  //       .catch((error) => {
-  //         console.log(error);
-  //       })
-  //       .finally(() => {
-  //         console.log("success");
-  //         setLoading(false);
-  //       });
-  //   } else {
-  //     setLoading(false);
-  //   }
-  // }, [basketItems]);
-
   const basketProducts = useMemo(() => {
-    const products = data.filter((item) =>
+    const products = basket.filter((item) =>
       basketItems.find((product) => item._id === product.id)
     );
     return products.map((item) => ({
@@ -101,27 +75,41 @@ export default function CheckoutPag() {
     setBasketFinal(basketProducts);
   }, [basket]);
 
-  const onSubmit: SubmitHandler<IOrder> = (data) => {
-    axios
-      .post("/api/orders", data)
-
-      .then((response) => {
+  const mutation = useMutation(
+    ORDER,
+    async (data) => await axios.post("/api/orders", data),
+    {
+      onSuccess: (response) => {
         setIsSuccessfullySubmitted(true);
+        setIsOpen(true);
+        localStorage.removeItem("cart");
+        setBasketFinal([]);
+        const orderNumber = response.data.order._id;
+        setTimeout(() => {
+          router.push({
+            pathname: "/thankyou",
+            query: { total: total, orderNumber: orderNumber },
+          });
+        }, 1000);
+      },
+    }
+  );
 
-        setTimeout(() => router.push("/thankyou"), 1500);
-      })
-      .catch((error) => {
-        console.log(error.data);
-      });
+  const onSubmit: SubmitHandler<IOrder> = (data): void => {
+    mutation.mutate(data);
   };
-  // if (isLoading) return <Spinner />;
+
+  function handleClose(): void {
+    setIsOpen(false);
+  }
 
   return (
     <Layout>
       <h2 className="text-center pb-24 text-2xl">Checkout</h2>
-      {!data.length && <div>your shopping cart is empty</div>}
+      {isLoadingProducts && <div>Loading your cart...</div>}
+      {!basketItems.length && <div>your shopping cart is empty</div>}
 
-      {data.map((product) => (
+      {basketProducts.map((product) => (
         <div key={product._id} className="flex mb-5">
           <div className="bg-gray-100 p-3 w-64 rounded-xl">
             <img src={product.image} alt={product.name} />
@@ -214,11 +202,7 @@ export default function CheckoutPag() {
               autoComplete="email"
               placeholder="E-mail address"
             />
-            {isSuccessfullySubmitted && (
-              <p className="text-green-700">
-                You've made an order! Redireting to payment...
-              </p>
-            )}
+
             <div className="flex justify-end p-4">
               <input
                 className="bg-emerald-400 py-2 px-4 rounded mx-auto"
@@ -232,7 +216,4 @@ export default function CheckoutPag() {
       )}
     </Layout>
   );
-}
-function setBasketFinal(basketProducts: IProductQuantity[]) {
-  throw new Error("Function not implemented.");
 }

@@ -43,7 +43,7 @@ export function ContextProvider({ children }: BasketProviderProps) {
   useEffect(() => {
     try {
       const cart = JSON.parse(localStorage.getItem("cart") || "[]");
-      setBasketItems(cart);
+      setBasketItems(cart); // ustawiam basket items 2x
     } catch {
       console.log(Error);
     }

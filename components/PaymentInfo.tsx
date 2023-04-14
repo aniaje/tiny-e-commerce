@@ -1,5 +1,7 @@
+// import { useEffect } from "react";
+
 interface Props {
-  info: number;
+  info: string | string[] | undefined;
 }
 
 const PaymentInfo = ({ info }: Props) => (
