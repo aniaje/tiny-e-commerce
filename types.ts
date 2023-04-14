@@ -20,6 +20,7 @@ export type IOrder = {
   city: string;
   email: string;
   basketProducts?: [];
+  mutate?: () => void;
 };
 
 export type RootProps = {

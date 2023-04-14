@@ -1,6 +1,15 @@
 import { useBasket } from "@/ProductsContext";
 import { IProduct } from "@/types";
 
+let formatCurrency = new Intl.NumberFormat("en-US", {
+  // The formatting style to use
+  style: "currency",
+
+  // The currency to use when "style" is set to "currency" (required)
+  // An ISO 4217 currency codes
+  currency: "USD",
+});
+
 export default function Product({
   _id,
   name,
