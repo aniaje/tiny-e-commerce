@@ -1,4 +1,4 @@
-import { useBasket } from "@/ProductsContext";
+import { useBasket } from "@/app/ProductsContext";
 import { IProduct } from "@/types";
 
 let formatCurrency = new Intl.NumberFormat("en-US", {

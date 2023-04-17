@@ -1,4 +1,6 @@
 {
   "github.copilot-labs.showBrushesLenses": true,
-  "github.copilot-labs.showTestGenerationLenses": true
+  "github.copilot-labs.showTestGenerationLenses": true,
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.enablePromptUseWorkspaceTsdk": true
 }

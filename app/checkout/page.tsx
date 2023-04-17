@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import Layout from "@/components/Layout";
-import { useBasket } from "@/ProductsContext";
+import { useBasket } from "@/app/ProductsContext";
 import axios from "axios";
 import { IOrder, IProduct, IProductQuantity } from "@/types";
 import router from "next/router";
 import { useQuery, useMutation } from "react-query";
-import Modal from "@/components/Modal";
+// import Modal from "@/components/Modal";
 
 export interface CartProductNonDB {
   product: IProduct;

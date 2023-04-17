@@ -1,26 +1,40 @@
+"use client";
+
 import { useMemo, useState } from "react";
 import { initMongoose } from "@/lib/mongoose";
-import { findAllProducts } from "./api/products";
+import { findAllProducts } from "@/app/api/products";
 import Layout from "@/components/Layout";
 import { IProduct } from "@/types";
 
 import CategoryItems from "@/components/CategoryItems";
 
-interface HomeProps {
-  shopItems: IProduct[];
-}
+// interface HomeProps {
+//   shopItems: IProduct[];
+// }
 
 interface Category {
   key: string | null;
   label: string;
 }
 
+async function fetchProducts() {
+  const res = await fetch("/api/products");
+  const products = await res.json();
+  return products;
+}
+
 //</IProduct>
-export default function Home({ shopItems }: HomeProps) {
+export default async function Home() {
   const [search, setSearch] = useState<string>("");
   const [displayedCat, setDisplayedCat] = useState<string>("all");
 
+  await initMongoose();
+  const shopItems = await findAllProducts();
+  console.log(shopItems);
+
   const categories = Array.from(new Set(shopItems.map((p) => p.category)));
+
+  console.log(categories);
 
   const categoriesAndAll: Category[] = categories.map((category: string) => ({
     key: category,
@@ -73,10 +87,10 @@ export default function Home({ shopItems }: HomeProps) {
   );
 }
 
-export async function getServerSideProps() {
-  await initMongoose(); //conecting to the db
-  const shopItems = await findAllProducts();
-  return {
-    props: { shopItems: JSON.parse(JSON.stringify(shopItems)) },
-  };
-}
+// export async function getServerSideProps() {
+//   await initMongoose();
+//   const shopItems = await findAllProducts();
+//   return {
+//     props: { shopItems: JSON.parse(JSON.stringify(shopItems)) },
+//   };
+// }

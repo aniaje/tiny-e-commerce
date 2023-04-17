@@ -1,3 +1,5 @@
+"use client";
+
 import React, {
   createContext,
   Dispatch,
@@ -8,7 +10,7 @@ import React, {
   useMemo,
   useState,
 } from "react";
-import { IProduct, IProductQuantity } from "./types";
+import { IProduct, IProductQuantity } from "../types";
 
 interface BasketItem {
   id: string;
@@ -43,7 +45,7 @@ export function ContextProvider({ children }: BasketProviderProps) {
   useEffect(() => {
     try {
       const cart = JSON.parse(localStorage.getItem("cart") || "[]");
-      setBasketItems(cart); // ustawiam basket items 2x
+      setBasketItems(cart);
     } catch {
       console.log(Error);
     }

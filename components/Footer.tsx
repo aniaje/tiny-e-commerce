@@ -1,12 +1,12 @@
-import { useBasket } from "@/ProductsContext";
+"use client";
+import { useBasket } from "@/app/ProductsContext";
 import Link from "next/link";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 
 import { AiOutlineShoppingCart, AiOutlineHome } from "react-icons/ai";
 
 export default function Footer() {
-  const router = useRouter();
-  const path = router.pathname;
+  const { asPath } = useRouter();
 
   const { basketQuantity } = useBasket();
 
@@ -15,18 +15,18 @@ export default function Footer() {
       <Link
         href={"/"}
         className={
-          (path === "/" ? "text-emerald-600" : "") +
+          (asPath === "/" ? "text-emerald-600" : "") +
           "flex-col items-center justify-center items-center"
         }
       >
-        <pre>{path}</pre>
+        <pre>{asPath}</pre>
         <AiOutlineHome />
         Home
       </Link>
       <Link
         href={"/checkout"}
         className={
-          (path === "/checkout" ? "text-emerald-600" : "") +
+          (asPath === "/checkout" ? "text-emerald-600" : "") +
           "flex-col items-center justify-center items-center"
         }
       >
