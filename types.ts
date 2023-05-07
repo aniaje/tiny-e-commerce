@@ -26,3 +26,8 @@ export type IOrder = {
 export type RootProps = {
   children: React.ReactNode;
 };
+
+export interface Category {
+  key: string | null;
+  label: string;
+}

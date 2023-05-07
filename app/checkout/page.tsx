@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import Layout from "@/components/Layout";
-import { useBasket } from "@/app/ProductsContext";
+import { useBasket } from "@/components/ProductsContext";
 import axios from "axios";
 import { IOrder, IProduct, IProductQuantity } from "@/types";
 import router from "next/router";
