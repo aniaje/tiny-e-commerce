@@ -12,14 +12,11 @@ const queryClient = new QueryClient(queryClientOptions);
 
 export const ReactQueryWrapper = ({ children }: { children: ReactNode }) => {
   return (
-    <>
-    {children}
-    </>
-    // <QueryClientProvider client={queryClient}>
-    //   <>
-    //     <ReactQueryDevtools initialIsOpen={false} />
-    //     {children}
-    //   </>
-    // </QueryClientProvider>
+    <QueryClientProvider client={queryClient}>
+      <>
+        <ReactQueryDevtools initialIsOpen={false} />
+        {children}
+      </>
+    </QueryClientProvider>
   );
 };
