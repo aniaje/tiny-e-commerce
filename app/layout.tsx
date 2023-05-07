@@ -1,9 +1,5 @@
-"use client";
-
-"use client";
-
-import { ContextProvider } from "@/app/ProductsContext";
-import ReactQuery from "./react-query.component";
+import { ProductsProvider } from "@/components/ProductsContext";
+import { ReactQueryWrapper } from "@/components/ReactQueryWrapper";
 import "@/styles/globals.css";
 
 type Props = {
@@ -18,11 +14,11 @@ const RootLayout = ({ children }: Props) => {
 
       <body className="min-h-screen p-5 flex justify-center  ">
         <main>
-          <ReactQuery>
-            <ContextProvider>
+          <ReactQueryWrapper>
+            <ProductsProvider>
               <main>{children}</main>
-            </ContextProvider>
-          </ReactQuery>
+            </ProductsProvider>
+          </ReactQueryWrapper>
         </main>
       </body>
     </html>

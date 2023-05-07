@@ -10,7 +10,7 @@ import React, {
   useMemo,
   useState,
 } from "react";
-import { IProduct, IProductQuantity } from "../types";
+import { IProductQuantity } from "../types";
 
 interface BasketItem {
   id: string;
@@ -38,7 +38,7 @@ interface Context {
 const Context = createContext({} as Context);
 export const useBasket = () => useContext(Context);
 
-export function ContextProvider({ children }: BasketProviderProps) {
+export function ProductsProvider({ children }: BasketProviderProps) {
   const [basketItems, setBasketItems] = useState<BasketItem[]>([]);
   const [basketFinal, setBasketFinal] = useState<IProductQuantity[]>([]);
 
@@ -46,8 +46,8 @@ export function ContextProvider({ children }: BasketProviderProps) {
     try {
       const cart = JSON.parse(localStorage.getItem("cart") || "[]");
       setBasketItems(cart);
-    } catch {
-      console.log(Error);
+    } catch (err) {
+      console.log(err);
     }
   }, []);
 

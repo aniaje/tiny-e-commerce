@@ -1,3 +1,5 @@
+"use client"
+
 import { ReactNode } from "react";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { ReactQueryDevtools } from "react-query/devtools";
@@ -8,17 +10,13 @@ const queryClientOptions = {
 
 const queryClient = new QueryClient(queryClientOptions);
 
-// queryClientOptions
-//      {
-//    defaultOptions: { queries: { retry: false, staleTime: Infinity, refetchOnMount: } },
-
-const ReactQuery = ({ children }: { children: ReactNode }) => {
+export const ReactQueryWrapper = ({ children }: { children: ReactNode }) => {
   return (
     <QueryClientProvider client={queryClient}>
-      <ReactQueryDevtools initialIsOpen={false} />
-      {children}
+      <>
+        <ReactQueryDevtools initialIsOpen={false} />
+        {children}
+      </>
     </QueryClientProvider>
   );
 };
-
-export default ReactQuery;
