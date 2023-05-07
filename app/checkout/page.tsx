@@ -1,12 +1,13 @@
+"use client"
+
 import { useEffect, useMemo, useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import Layout from "@/components/Layout";
 import { useBasket } from "@/components/ProductsContext";
 import axios from "axios";
-import { IOrder, IProduct, IProductQuantity } from "@/types";
+import { IOrder, IProduct } from "@/types";
 import router from "next/router";
 import { useQuery, useMutation } from "react-query";
-// import Modal from "@/components/Modal";
 
 export interface CartProductNonDB {
   product: IProduct;
@@ -24,12 +25,11 @@ interface State {
 const PRODUCTS = "PRODUCTS";
 const ORDER = "ORDER";
 
-export default function CheckoutPag() {
+export default function CheckoutPage() {
   const {
     basketItems,
     increaseQuantity,
     decreaseQuantity,
-    basketFinal,
     setBasketFinal,
     delivery,
     subtotal,
@@ -51,9 +51,11 @@ export default function CheckoutPag() {
 
   const {
     isLoading: isLoadingProducts,
-    isError,
     data: basket = [],
   } = useQuery(PRODUCTS, async () => {
+    if (!ids.length) {
+      return []
+    }
     const { data } = await axios<IProduct[]>(
       "/api/products?ids=" + ids.join(",")
     );
@@ -73,11 +75,11 @@ export default function CheckoutPag() {
 
   useEffect(() => {
     setBasketFinal(basketProducts);
-  }, [basket]);
+  }, [basket, basketProducts, setBasketFinal]);
 
-  const mutation = useMutation(
+  const { mutate: confirmOrder } = useMutation(
     ORDER,
-    async (data) => await axios.post("/api/orders", data),
+    async (data: IOrder) => await axios.post("/api/orders", data),
     {
       onSuccess: (response) => {
         setIsSuccessfullySubmitted(true);
@@ -96,7 +98,7 @@ export default function CheckoutPag() {
   );
 
   const onSubmit: SubmitHandler<IOrder> = (data): void => {
-    mutation.mutate(data);
+    confirmOrder(data);
   };
 
   function handleClose(): void {
