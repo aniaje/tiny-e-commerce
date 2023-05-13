@@ -1,6 +1,8 @@
+"use client";
+
 import { useBasket } from "@/components/ProductsContext";
 import { IProduct } from "@/types";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 
 export default function Product({
   _id,
@@ -11,29 +13,19 @@ export default function Product({
 }: IProduct) {
   const { increaseQuantity } = useBasket();
 
-  const router = useRouter();
   const searchParams = useSearchParams();
-  console.log(searchParams);
 
-  function onProductClick() {
-    const newProduct = {
-      name,
-      description,
-      image,
-      _id,
-    };
-    router.push("/product?id=" + name);
-  }
+  console.log(searchParams);
 
   return (
     <div
-      onClick={onProductClick}
-      className="max-w-sm rounded overflow-hidden shadow-md justify-center
+      className="max-w-xl rounded overflow-hidden shadow-md justify-center
     "
     >
       <div className="">
+        <div>TESTTESTETS</div>
         <img
-          className=" object-scale-down h-48 w-96 "
+          className=" object-scale-down h-96 w-100 "
           src={image}
           alt="Sunset in the mountains"
         />

@@ -1,12 +1,14 @@
+"use client";
+
 import { useEffect, useMemo, useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import Layout from "@/components/Layout";
 import { useBasket } from "@/components/ProductsContext";
 import axios from "axios";
 import { IOrder, IProduct, IProductQuantity } from "@/types";
-import router from "next/router";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useQuery, useMutation } from "react-query";
-// import Modal from "@/components/Modal";
+import Modal from "@/components/Modal";
 
 export interface CartProductNonDB {
   product: IProduct;
@@ -47,6 +49,10 @@ export default function CheckoutPag() {
     formState: { errors, isSubmitting },
   } = useForm<IOrder>();
 
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
   const ids = basketItems.map((item) => item.id);
 
   const {
@@ -73,7 +79,7 @@ export default function CheckoutPag() {
 
   useEffect(() => {
     setBasketFinal(basketProducts);
-  }, [basket]);
+  }, [basketProducts]);
 
   const mutation = useMutation(
     ORDER,
@@ -85,15 +91,16 @@ export default function CheckoutPag() {
         localStorage.removeItem("cart");
         setBasketFinal([]);
         const orderNumber = response.data.order._id;
-        setTimeout(() => {
-          router.push({
-            pathname: "/thankyou",
-            query: { total: total, orderNumber: orderNumber },
-          });
-        }, 1000);
+
+        router.push("/thankyou"), { total: total, orderNumber: orderNumber };
+      },
+      onError: (error) => {
+        console.log(error);
       },
     }
   );
+
+  // https://nextjs.org/docs/app/api-reference/functions/use-search-params
 
   const onSubmit: SubmitHandler<IOrder> = (data): void => {
     mutation.mutate(data);
@@ -212,6 +219,7 @@ export default function CheckoutPag() {
               />
             </div>
           </form>
+          <Modal isOpen={false} handleClose={handleClose} />
         </>
       )}
     </Layout>

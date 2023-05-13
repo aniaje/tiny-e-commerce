@@ -12,14 +12,12 @@ const RootLayout = ({ children }: Props) => {
         <title>tiny shop</title>
       </head>
 
-      <body className="min-h-screen p-5 flex justify-center  ">
-        <main>
-          <ReactQueryWrapper>
-            <ProductsProvider>
-              <main>{children}</main>
-            </ProductsProvider>
-          </ReactQueryWrapper>
-        </main>
+      <body className="min-h-screen p-5 flex justify-center ">
+        <ReactQueryWrapper>
+          <ProductsProvider>
+            <main>{children}</main>
+          </ProductsProvider>
+        </ReactQueryWrapper>
       </body>
     </html>
   );

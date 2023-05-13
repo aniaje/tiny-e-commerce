@@ -7,9 +7,11 @@ export default async function handle(
 ) {
   const { ids } = req.query as { ids: string }; //const ids = req.query.ids
 
+  console.log("ids", ids);
+
   if (ids?.length) {
     const idsArray = ids?.split(",");
-    const products = findAllProductsByIds(idsArray)
+    const products = findAllProductsByIds(idsArray);
     return res.json(products);
   }
   const products = await findAllProducts();
