@@ -10,7 +10,7 @@ import React, {
   useMemo,
   useState,
 } from "react";
-import { IProductQuantity } from "../types";
+import { IProduct, IProductQuantity } from "../types";
 
 interface BasketItem {
   id: string;

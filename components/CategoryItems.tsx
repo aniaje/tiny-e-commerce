@@ -2,7 +2,6 @@ import { IProduct } from "@/types";
 import Product from "./Product";
 
 interface CategoryItemsProps {
-  categoryName: string;
   products: IProduct[];
 }
 

@@ -2,7 +2,7 @@
 
 import { useBasket } from "@/components/ProductsContext";
 import { IProduct } from "@/types";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export default function Product({
   _id,
@@ -13,9 +13,7 @@ export default function Product({
 }: IProduct) {
   const { increaseQuantity } = useBasket();
 
-  const searchParams = useSearchParams();
-
-  console.log(searchParams);
+  const router = useRouter();
 
   return (
     <div

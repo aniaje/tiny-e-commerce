@@ -31,8 +31,6 @@ export const ProductsList = ({ products }: ProductsListProps) => {
     );
   }, [products, displayedCat, search]);
 
-
-
   return (
     <>
       <input
